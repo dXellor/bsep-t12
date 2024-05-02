@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bsep-api", "bsep-api\bsep-api.csproj", "{7EB7097C-F3AB-48C2-A1FF-DB2B97534CFE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bsep-bll", "bsep-bll\bsep-bll.csproj", "{676028EB-CF6A-4945-96D2-0E18B3475410}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bsep-dll", "bsep-dll\bsep-dll.csproj", "{F6EDD27B-D3D5-414C-80F4-E9B07F6891BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{7EB7097C-F3AB-48C2-A1FF-DB2B97534CFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EB7097C-F3AB-48C2-A1FF-DB2B97534CFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EB7097C-F3AB-48C2-A1FF-DB2B97534CFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{676028EB-CF6A-4945-96D2-0E18B3475410}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{676028EB-CF6A-4945-96D2-0E18B3475410}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{676028EB-CF6A-4945-96D2-0E18B3475410}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{676028EB-CF6A-4945-96D2-0E18B3475410}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6EDD27B-D3D5-414C-80F4-E9B07F6891BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6EDD27B-D3D5-414C-80F4-E9B07F6891BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6EDD27B-D3D5-414C-80F4-E9B07F6891BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6EDD27B-D3D5-414C-80F4-E9B07F6891BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,3 +1,7 @@
+using bsep_bll.Extensions;
+using bsep_dll.Data;
+using bsep_dll.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +10,24 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddDbContext<DataContext>();
+builder.Services.RegisterRepositories();
+builder.Services.RegisterServices();
+builder.Services.RegisterMapperProfiles();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "_allowChosenOrigins",
+        policy =>
+        {
+            policy.AllowAnyOrigin();
+            policy.AllowAnyMethod();
+            policy.AllowAnyHeader();
+        });
+});
 
 var app = builder.Build();
 
