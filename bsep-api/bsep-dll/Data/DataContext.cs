@@ -10,6 +10,7 @@ public class DataContext: DbContext
     private IConfiguration _configuration;
     
     public DbSet<User> Users { get; init; }
+    public DbSet<UserIdentity> Identities { get; init; }
 
     public DataContext(DbContextOptions options, IConfiguration configuration) : base(options)
     {
@@ -25,5 +26,6 @@ public class DataContext: DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new UserIdentityEntityTypeConfiguration());
     }
 }

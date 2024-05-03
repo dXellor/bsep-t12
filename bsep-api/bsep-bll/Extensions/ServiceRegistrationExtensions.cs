@@ -9,5 +9,6 @@ public static class ServiceRegistrationExtensions
     public static void RegisterServices(this IServiceCollection services)
     {
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAuthService, AuthService>();
     }
 }

@@ -11,11 +11,13 @@ namespace bsep_dll.Repositories;
 public class UserRepository: IUserRepository
 {
     private readonly ILogger<UserRepository> _logger;
+    private readonly DataContext _dataContext;
     private readonly DbSet<User> _users;
 
     public UserRepository(ILogger<UserRepository> logger, DataContext dataContext)
     {
         _logger = logger;
+        _dataContext = dataContext;
         _users = dataContext.Users;
     }
     
@@ -43,9 +45,11 @@ public class UserRepository: IUserRepository
         throw new NotImplementedException();
     }
 
-    public async  Task<User> CreateAsync(User newObject)
+    public async Task<User> CreateAsync(User newObject)
     {
-        throw new NotImplementedException();
+        var user = await _users.AddAsync(newObject);
+        await _dataContext.SaveChangesAsync();
+        return user.Entity;
     }
 
     public async  Task<User> UpdateAsync(User updatedObject)

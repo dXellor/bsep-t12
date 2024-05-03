@@ -1,12 +1,10 @@
-using bsep_dll.Helpers.Pagination;
-using bsep_dll.Models;
-
 namespace bsep_bll.Dtos.Users;
 
-public class UserDto
+public class UserRegistrationDto
 {
-    public int Id { get; init; }
     public string Email { get; set; }
+    public string Password { get; set; }
+    public string PasswordAgain { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public string? CompanyName { get; set; }
@@ -15,16 +13,14 @@ public class UserDto
     public string City { get; set; }
     public string Country { get; set; }
     public string Phone { get; set; }
-    public string Role { get; set; }
     public string Type { get; set; }
     public string Package { get; set; }
-    
-    public UserDto(){}
-    
-    public UserDto(int id, string email, string? firstName, string? lastName, string? companyName, string? companyPib, string address, string city, string country, string phone, string role, string type, string package)
+
+    public UserRegistrationDto(string email, string password, string passwordAgain, string? firstName, string? lastName, string? companyName, string? companyPib, string address, string city, string country, string phone, string type, string package)
     {
-        Id = id;
         Email = email;
+        Password = password;
+        PasswordAgain = passwordAgain;
         FirstName = firstName;
         LastName = lastName;
         CompanyName = companyName;
@@ -33,7 +29,6 @@ public class UserDto
         City = city;
         Country = country;
         Phone = phone;
-        Role = role;
         Type = type;
         Package = package;
     }

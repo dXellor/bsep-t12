@@ -33,5 +33,7 @@ namespace bsep_api.Controllers
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
             return Ok(users);
         }
+        
+
     }
 }

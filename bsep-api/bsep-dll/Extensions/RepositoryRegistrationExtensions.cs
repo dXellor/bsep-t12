@@ -9,5 +9,6 @@ public static class RepositoryRegistrationExtensions
     public static void RegisterRepositories(this IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
     }
 }
