@@ -1,6 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Transactions;
 using AutoMapper;
 using bsep_bll.Contracts;
+using bsep_bll.Dtos.Auth;
 using bsep_bll.Dtos.Users;
 using bsep_dll.Contracts;
 using bsep_dll.Data;
@@ -15,20 +17,22 @@ public class AuthService: IAuthService
 {
     private readonly IUserIdentityRepository _userIdentityRepository;
     private readonly IUserRepository _userRepository;
+    private readonly ITokenService _tokenService;
     private readonly IMapper _mapper;
     private readonly ILogger<AuthService> _logger;
     private readonly IConfiguration _configuration;
 
-    public AuthService(IUserIdentityRepository userIdentityRepository, IUserRepository userRepository, IMapper mapper, ILogger<AuthService> logger, IConfiguration configuration)
+    public AuthService(IUserIdentityRepository userIdentityRepository, IUserRepository userRepository, IMapper mapper, ILogger<AuthService> logger, IConfiguration configuration, ITokenService tokenService)
     {
         _userIdentityRepository = userIdentityRepository;
         _userRepository = userRepository;
+        _tokenService = tokenService;
         _mapper = mapper;
         _logger = logger;
         _configuration = configuration;
     }
     
-    public async Task<UserDto?> RegisterUser(UserRegistrationDto registrationDto)
+    public async Task<UserDto?> Register(UserRegistrationDto registrationDto)
     {
         var userEntity = _mapper.Map<UserRegistrationDto, User>(registrationDto);
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
@@ -54,5 +58,41 @@ public class AuthService: IAuthService
             _logger.LogError("Unable to register user, rollback");
             return null;
         }
+    }
+
+    public async Task<LoginResponseDto?> Login(LoginDto loginDto)
+    {
+        var identity = await _userIdentityRepository.GetByEmailAsync(loginDto.Email, includeUser: true);
+        if (identity == null || !identity.VerifyCredentials(loginDto.Email, loginDto.Password)) return null;
+
+        return await GenerateTokenPair(identity);
+    }
+
+    public async Task<LoginResponseDto?> RefreshAccessToken(string accessToken, string refreshToken)
+    {
+        var jwt = _tokenService.ParseAndValidateAccessToken(accessToken);
+        if (jwt == null)
+            return null;
+
+        var emailClaim = jwt.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email);
+        if (emailClaim == null || string.IsNullOrEmpty(emailClaim.Value))
+            return null;
+
+        var identity = await _userIdentityRepository.GetByEmailAsync(emailClaim.Value, includeUser: true);
+        if (!identity!.VerifyRefreshToken(refreshToken))
+            return null;
+
+        return await GenerateTokenPair(identity);
+    }
+
+    private async Task<LoginResponseDto?> GenerateTokenPair(UserIdentity identity)
+    {
+        var userDto = _mapper.Map<User, UserDto>(identity.User!);
+        var accessToken = _tokenService.GenerateAccessToken(userDto);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+        identity.SetRefreshToken(refreshToken.Token, refreshToken.Expires);
+        await _userIdentityRepository.UpdateAsync(identity);
+
+        return new LoginResponseDto(userDto, accessToken, refreshToken);
     }
 }

@@ -1,3 +1,4 @@
+using System.Runtime.Intrinsics.Arm;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -12,6 +13,8 @@ public class UserIdentity
     public byte[] Salt { get; init; }
     public int Iterations { get; init; }
     public int OutputLength { get; init; }
+    public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpirationDateTime { get; set; }
     public UserIdentity(string email, string password, byte[] salt, int iterations, int outputLength)
     {
         Email = email;
@@ -44,7 +47,27 @@ public class UserIdentity
             HashAlgorithmName.SHA512,
             OutputLength
         );
-        
         return Email.Equals(email) && CryptographicOperations.FixedTimeEquals(hashToCompare, Convert.FromHexString(Password));
+    }
+
+    public void SetRefreshToken(string refreshToken, DateTime expires)
+    {
+        var hashedToken = SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken));
+        RefreshToken = Convert.ToHexString(hashedToken);
+        RefreshTokenExpirationDateTime = expires;
+    }
+
+    public bool VerifyRefreshToken(string refreshToken)
+    {
+        if (RefreshToken == null)
+            return false;
+        var hashToCompare = SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken));
+        return CryptographicOperations.FixedTimeEquals(hashToCompare, Convert.FromHexString(RefreshToken)) && DateTime.UtcNow < RefreshTokenExpirationDateTime;
+    }
+
+    public void InvalidateRefreshToken()
+    {
+        RefreshToken = null;
+        RefreshTokenExpirationDateTime = null;
     }
 }

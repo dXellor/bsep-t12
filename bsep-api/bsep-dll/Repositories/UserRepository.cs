@@ -61,4 +61,13 @@ public class UserRepository: IUserRepository
     {
         throw new NotImplementedException();
     }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        var query = _users
+            .AsNoTracking()
+            .Where(u => u.Email == email);
+
+        return await query.FirstOrDefaultAsync();
+    }
 }

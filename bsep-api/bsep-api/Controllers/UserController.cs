@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using bsep_bll.Contracts;
 using bsep_bll.Dtos.Users;
 using bsep_dll.Helpers.QueryParameters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace bsep_api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase

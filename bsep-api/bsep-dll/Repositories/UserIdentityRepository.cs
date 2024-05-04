@@ -37,9 +37,11 @@ public class UserIdentityRepository: IUserIdentityRepository
         return identity.Entity;
     }
 
-    public Task<UserIdentity> UpdateAsync(UserIdentity updatedObject)
+    public async Task<UserIdentity> UpdateAsync(UserIdentity updatedObject)
     {
-        throw new NotImplementedException();
+        var identity = _identities.Update(updatedObject);
+        await _dataContext.SaveChangesAsync();
+        return identity.Entity;
     }
 
     public Task<int> DeleteAsync(int id)
@@ -47,11 +49,13 @@ public class UserIdentityRepository: IUserIdentityRepository
         throw new NotImplementedException();
     }
 
-    public async Task<UserIdentity?> GetByEmailAsync(string email)
+    public async Task<UserIdentity?> GetByEmailAsync(string email, bool includeUser = false)
     {
         var query = _identities
             .AsNoTracking()
             .Where(i => i.Email.Equals(email));
+
+        if (includeUser) query = query.Include(ui => ui.User);
 
         return await query.FirstOrDefaultAsync();
     }

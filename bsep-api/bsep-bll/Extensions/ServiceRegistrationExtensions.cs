@@ -10,5 +10,6 @@ public static class ServiceRegistrationExtensions
     {
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITokenService, TokenService>();
     }
 }
