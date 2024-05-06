@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using bsep_api.Extensions.Auth;
 using bsep_bll.Contracts;
 using bsep_bll.Dtos.Users;
 using bsep_dll.Helpers.QueryParameters;
@@ -12,7 +13,6 @@ using Newtonsoft.Json;
 
 namespace bsep_api.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -24,6 +24,7 @@ namespace bsep_api.Controllers
             _userService = userService;
         }
 
+        [Authorize]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsers([FromQuery] UserQueryParameters userQueryParameters)
@@ -35,7 +36,5 @@ namespace bsep_api.Controllers
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
             return Ok(users);
         }
-        
-
     }
 }

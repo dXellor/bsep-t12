@@ -58,4 +58,10 @@ public class UserService: IUserService
     {
         throw new NotImplementedException();
     }
+
+    public async Task<UserDto> GetByEmailAsync(string email)
+    {
+        var result = await _userRepository.GetByEmailAsync(email);
+        return _mapper.Map<User, UserDto>(result);
+    }
 }

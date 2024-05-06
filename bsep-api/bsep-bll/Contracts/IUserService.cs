@@ -4,5 +4,5 @@ namespace bsep_bll.Contracts;
 
 public interface IUserService: ICrudService<UserDto>
 {
-    
+    Task<UserDto?> GetByEmailAsync(string email);
 }
