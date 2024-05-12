@@ -1,9 +1,11 @@
+using bsep_api.Extensions.Auth;
 using bsep_api.Extensions.Http;
 using bsep_api.Helpers.Validation.Auth;
 using bsep_api.Helpers.Validation.User;
 using bsep_bll.Contracts;
 using bsep_bll.Dtos.Auth;
 using bsep_bll.Dtos.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bsep_api.Controllers
@@ -13,10 +15,12 @@ namespace bsep_api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authServiceService;
+        private readonly IUserService _userService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IUserService userService)
         {
             _authServiceService = authService;
+            _userService = userService;
         }
 
         [HttpPost("register")]
@@ -73,6 +77,21 @@ namespace bsep_api.Controllers
                 return Ok(result);
             }
             return Unauthorized("Invalid credentials");
+        }
+        
+        [Authorize]
+        [HttpGet("accessCheck")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetUserByAccessToken()
+        {
+            var email = User.GetClaim("email");
+            var result = await _userService.GetByEmailAsync(email);
+
+            if (result == null)
+                return Unauthorized();
+
+            return Ok(result);
         }
     }
 }
