@@ -4,7 +4,7 @@
       <div class="fields">
         <mat-form-field>
           <mat-label>Legal/Physical entity</mat-label>
-          <mat-select [(value)]="selectedEntityType">
+          <mat-select [(value)]="selectedEntityType" (valueChange)="changeValidationsBasedOnEntityType($event)">
             <mat-option value="LegalEntity" selected>Legal entity</mat-option>
             <mat-option value="PhysicalEntity">Physical entity</mat-option>
           </mat-select>
@@ -40,7 +40,7 @@
           </mat-form-field>
           <mat-form-field>
               <mat-label>PIB</mat-label>
-              <input matInput formControlName="pib" type="text"/>
+              <input matInput formControlName="companyPib" type="text" [maxLength]="9"/>
           </mat-form-field>
         </div>
 

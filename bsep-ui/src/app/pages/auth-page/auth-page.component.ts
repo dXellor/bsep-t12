@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./auth-page.component.scss'],
 })
 export class AuthPageComponent {
-  public formType: AuthFormEnum = AuthFormEnum.REGISTER;
+  public formType: AuthFormEnum = AuthFormEnum.LOGIN;
 
   public changeForm(type: string): void {
     this.formType = type as AuthFormEnum;
