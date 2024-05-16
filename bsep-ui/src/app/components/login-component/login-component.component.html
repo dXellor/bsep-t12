@@ -1,6 +1,22 @@
-<form [formGroup]="form">
-  <input formControlName="email" type="text" placeholder="email">
-  <input formControlName="password" type="password" placeholder="password">
+<div class="form-container">
+  <form [formGroup]="form" (ngSubmit)="login()">
+      <div>
+          <div class="fields">
+              <mat-form-field>
+                  <mat-label>Email</mat-label>
+                  <input matInput formControlName="email" type="text"/>
+              </mat-form-field>
+              <mat-form-field>
+                  <mat-label>Password</mat-label>
+                  <input matInput formControlName="password" type="password"/>
+              </mat-form-field>
+          </div>
 
-  <button (click)="login()">Log in</button>
-</form>
+          <button color="primary" type="submit" mat-raised-button class="custom-button">Login</button>
+      </div>
+      <div>
+      <p>Don't have an account yet?</p>
+      <p><a (click)="showRegister()">Register</a></p>
+      </div>
+  </form>
+</div>

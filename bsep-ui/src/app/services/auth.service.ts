@@ -6,6 +6,7 @@ import { User } from '../models/user-interface';
 import { RegistrationRequest } from '../models/requests/registration-request-interface';
 import { LoginRequest } from '../models/requests/login-request-interface';
 import { LoginResponse } from '../models/responses/login-response-interface';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,7 @@ export class AuthService {
     undefined
   );
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private toastr: ToastrService) {}
 
   public register(request: RegistrationRequest): Observable<User> {
     return this.http.post<User>(`${this.url}/register`, request);
@@ -25,7 +26,14 @@ export class AuthService {
   public login(request: LoginRequest): void {
     this.http.post<LoginResponse>(`${this.url}/login`, request).subscribe({
       next: (res) => this.saveLoggedInUser(res),
-      error: (error) => this.clearLoggedInUser(),
+      error: (error) => {
+        this.clearLoggedInUser(),
+          this.toastr.error('Invalid credentials', 'Login error', {
+            closeButton: true,
+            progressBar: true,
+            extendedTimeOut: 2000,
+          });
+      },
     });
   }
 

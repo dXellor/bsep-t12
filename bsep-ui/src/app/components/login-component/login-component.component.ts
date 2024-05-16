@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -12,6 +12,7 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./login-component.component.scss'],
 })
 export class LoginComponentComponent implements OnInit {
+  @Output() navigateToRegister = new EventEmitter<void>();
   public form: FormGroup;
 
   constructor(
@@ -42,7 +43,6 @@ export class LoginComponentComponent implements OnInit {
       };
 
       this.authService.login(loginRequest);
-    } else {
       const errors = getFormValidationErrors(this.form);
       const message = `${errors[0].control} is ${errors[0].error}`;
 
@@ -52,5 +52,9 @@ export class LoginComponentComponent implements OnInit {
         extendedTimeOut: 2000,
       });
     }
+  }
+
+  public showRegister() {
+    this.navigateToRegister.emit();
   }
 }
