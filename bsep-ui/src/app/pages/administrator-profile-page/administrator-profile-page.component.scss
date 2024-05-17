@@ -1,0 +1,28 @@
+
+
+.form-container {
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  .full-width {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .half-width {
+    width: 48%;
+    margin-bottom: 16px;
+    margin-right: 2%;
+  }
+
+  .half-width:nth-child(even) {
+    margin-right: 0;
+  }
+
+  .custom-button {
+    width: 100%;
+    margin-top: 16px;
+  }
+}

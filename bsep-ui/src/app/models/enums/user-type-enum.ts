@@ -1,4 +1,4 @@
 export enum UserTypeEnum {
-  PhysicalEntity,
-  LegalEntity,
+  PhysicalEntity = 'PhysicalEntity',
+  LegalEntity = 'LegalEntity',
 }

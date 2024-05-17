@@ -1,1 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: Roboto,"Helvetica Neue", sans-serif;
+  background-color: #fffcff;
+  background-image: url("./assets/images/cubes.png");}
+
+@import "@angular/material/theming";
+@include mat-core();
+
+$my-app-primary: mat-palette($mat-indigo);
+// Accent colour
+$my-app-accent: mat-palette($mat-pink, A200, A100, A400);
+
+$my-app-theme: mat-light-theme($my-app-primary, $my-app-accent);
+@include angular-material-theme($my-app-theme);

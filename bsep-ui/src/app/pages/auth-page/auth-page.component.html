@@ -1,1 +1,2 @@
-<app-login-component></app-login-component>
+<app-login-component *ngIf="formType === 'LOGIN'" (navigateToRegister)="changeForm('REGISTER')"></app-login-component>
+<app-register *ngIf="formType === 'REGISTER'" (navigateToLogin)="changeForm('LOGIN')"></app-register>

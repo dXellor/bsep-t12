@@ -1,13 +1,20 @@
+using System.IO;
 using System.Text;
-using bsep_bll.Extensions;
-using bsep_dll.Data;
-using bsep_dll.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using bsep_bll.Extensions;
+using bsep_dll.Data;
+using bsep_dll.Extensions;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
+
+builder.WebHost.ConfigureKestrel((context, serverOptions) =>
+{
+    serverOptions.Configure(context.Configuration.GetSection("Kestrel"));
+});
 
 // Add services to the container.
 builder.Services.AddAuthentication(x =>
@@ -21,8 +28,7 @@ builder.Services.AddAuthentication(x =>
     {
         ValidIssuer = config["Cryptography:Tokens:JwtIssuer"],
         ValidAudience = config["Cryptography:Tokens:JwtAudience"],
-        IssuerSigningKey =
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Cryptography:Tokens:JwtSecretKey"]!)),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Cryptography:Tokens:JwtSecretKey"]!)),
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
@@ -33,11 +39,11 @@ builder.Services.AddAuthentication(x =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
-    opt.SwaggerDoc("v1", new OpenApiInfo() { Title = "BSEP API", Version = "v1" });
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "BSEP API", Version = "v1" });
     opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -54,8 +60,8 @@ builder.Services.AddSwaggerGen(opt =>
             {
                 Reference = new OpenApiReference
                 {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
             },
             Array.Empty<string>()
@@ -75,19 +81,27 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: "_allowChosenOrigins",
         policy =>
         {
-            policy.AllowAnyOrigin();
-            policy.AllowAnyMethod();
-            policy.AllowAnyHeader();
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
         });
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        var swaggerJsonBasePath = "/swagger/v1/swagger.json";
+        var swaggerEndpoint = Path.Combine(".", swaggerJsonBasePath);
+        c.SwaggerEndpoint(swaggerEndpoint, "BSEP API v1");
+        
+        c.RoutePrefix = "";
+        c.OAuthClientId("swagger-ui");
+        c.OAuthUsePkce();
+    });
 }
 
 app.UseHttpsRedirection();
@@ -95,8 +109,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
-
 app.UseCors("_allowChosenOrigins");
+
+app.MapControllers();
 
 app.Run();

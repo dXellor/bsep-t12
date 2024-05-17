@@ -36,5 +36,57 @@ namespace bsep_api.Controllers
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
             return Ok(users);
         }
+
+        [Authorize]
+        [HttpPut]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateUser([FromBody] UserDto updatedUser)
+        {
+            try
+            {
+                var updatedUserDto = await _userService.UpdateAsync(updatedUser);
+        
+                if (updatedUserDto == null)
+                {
+                    return NotFound($"User with email {updatedUser.Email} not found.");
+                }
+
+                return Ok(updatedUserDto);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error occurred while updating the user.");
+            }
+        }
+        
+        [Authorize(Roles = "Administrator")]
+        [HttpPut("changerole")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ChangeUserRole([FromBody] RoleChangeDto request)
+        {
+            try
+            {
+                var updatedUserDto = await _userService.ChangeRoleAsync(request);
+
+                if (updatedUserDto == null)
+                {
+                    return NotFound($"User with email {request.Email} not found.");
+                }
+
+                return Ok(updatedUserDto);
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error occurred while updating the user role.");
+            }
+        }
     }
 }

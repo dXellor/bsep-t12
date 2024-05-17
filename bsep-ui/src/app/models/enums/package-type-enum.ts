@@ -1,5 +1,5 @@
 export enum PackageTypeEnum {
-  Basic,
-  Standard,
-  Gold,
+  Basic = 'Basic',
+  Standard = 'Standard',
+  Gold = 'Gold',
 }
