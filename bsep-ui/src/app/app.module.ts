@@ -21,6 +21,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { RegisterComponent } from './components/register/register.component';
+import { AdministratorProfilePageComponent } from './pages/administrator-profile-page/administrator-profile-page.component';
+import {MatButtonToggleModule} from "@angular/material/button-toggle";
+import {MatListModule} from "@angular/material/list";
 
 @NgModule({
   declarations: [
@@ -29,6 +32,7 @@ import { RegisterComponent } from './components/register/register.component';
     HomePageComponent,
     LoginComponentComponent,
     RegisterComponent,
+    AdministratorProfilePageComponent,
   ],
   imports: [
     BrowserModule,
@@ -46,6 +50,8 @@ import { RegisterComponent } from './components/register/register.component';
     MatInputModule,
     MatSelectModule,
     ToastrModule.forRoot(),
+    MatButtonToggleModule,
+    MatListModule,
   ],
   providers: [
     {
