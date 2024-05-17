@@ -111,27 +111,9 @@ namespace bsep_dll.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
 
-                    b.Property<int>("AccountStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ActivationToken")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ActivationTokenExpirationDateTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("BlockedUntilDateTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("Iterations")
                         .HasColumnType("integer")
                         .HasColumnName("iterations");
-
-                    b.Property<string>("Otp")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("OtpExpirationDateTime")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("OutputLength")
                         .HasColumnType("integer")

@@ -1,15 +1,12 @@
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using bsep_bll.Contracts;
 using bsep_bll.Dtos.Auth;
-using bsep_bll.Dtos.Email;
 using bsep_bll.Dtos.Users;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace bsep_bll.Services;
 
@@ -48,56 +45,6 @@ public class TokenService: ITokenService
             Expires = DateTime.UtcNow.AddDays(duration)
         };
         return refreshToken;
-    }
-
-    public ActivationToken GenerateActivationToken()
-    {
-        var length = int.Parse(_configuration["Cryptography:Tokens:ActivationTokenLength"]!);
-        var duration = int.Parse(_configuration["Cryptography:Tokens:ActivationTokenDuration"]!);
-        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(length));
-        var secret = _configuration["Cryptography:Tokens:ActivationTokenSecretKey"]!;
-        secret = secret ?? "";
-        var encoding = new ASCIIEncoding();
-        byte[] keyByte = encoding.GetBytes(secret);
-        byte[] messageBytes = encoding.GetBytes(token);
-        string hash = "";
-        using (var hmacsha256 = new HMACSHA256(keyByte))
-        {
-            byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
-            hash = Convert.ToBase64String(hashmessage);
-        }
-        var activationToken = new ActivationToken()
-        {
-            Token = token,
-            Expires = DateTime.UtcNow.AddDays(duration),
-            TokenHash = hash
-        };
-        return activationToken;
-    }
-
-    public Otp GenerateOtp()
-    {
-        var length = int.Parse(_configuration["Cryptography:Tokens:OTPLength"]!);
-        var duration = int.Parse(_configuration["Cryptography:Tokens:OTPMinuteDuration"]!);
-        var otpCode = new string(Enumerable.Range(1, length).Select(i => $"{RandomNumberGenerator.GetInt32(0, 10)}"[0]).ToArray());
-        var secret = _configuration["Cryptography:Tokens:OTPSecretKey"]!;
-        secret = secret ?? "";
-        var encoding = new ASCIIEncoding();
-        byte[] keyByte = encoding.GetBytes(secret);
-        byte[] messageBytes = encoding.GetBytes(otpCode);
-        string otpHash = "";
-        using (var hmacsha256 = new HMACSHA256(keyByte))
-        {
-            byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
-            otpHash = Convert.ToBase64String(hashmessage);
-        }
-        var otp = new Otp()
-        {
-            OtpCode = otpCode,
-            Expires = DateTime.UtcNow.AddMinutes(duration),
-            OtpCodeHash = otpHash
-        };
-        return otp;
     }
 
     public JwtSecurityToken? ParseAndValidateAccessToken(string accessToken)

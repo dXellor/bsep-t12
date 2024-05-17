@@ -36,31 +36,5 @@ namespace bsep_api.Controllers
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
             return Ok(users);
         }
-
-        [Authorize]
-        [HttpGet("activate/{email}")]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> ActivateUser(string email)
-        {
-            var success = await _userService.ActivateUser(email);
-            return Ok(success);
-        }
-
-        [Authorize]
-        [HttpGet("block/{email}")]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> BlockUser(string email)
-        {
-            var success = await _userService.BlockUser(email);
-            return Ok(success);
-        }
-
-        [HttpGet("generateOtp")]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GenerateOtp(string email)
-        {
-            var success = await _userService.GenerateOtp(email);
-            return Ok(success);
-        }
     }
 }

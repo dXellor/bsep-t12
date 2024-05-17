@@ -8,5 +8,4 @@ public interface IAuthService
     Task<UserDto?> Register(UserRegistrationDto registrationDto);
     Task<LoginResponseDto?> Login(LoginDto loginDto);
     Task<LoginResponseDto?> RefreshAccessToken(string accessToken, string refreshToken);
-    Task<LoginResponseDto?> LoginWithOtp(LoginWithOtpDto loginDto);
 }

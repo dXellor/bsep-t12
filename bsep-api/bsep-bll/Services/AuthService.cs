@@ -1,11 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Cryptography;
-using System.Text;
 using System.Transactions;
 using AutoMapper;
 using bsep_bll.Contracts;
 using bsep_bll.Dtos.Auth;
-using bsep_bll.Dtos.Email;
 using bsep_bll.Dtos.Users;
 using bsep_dll.Contracts;
 using bsep_dll.Data;
@@ -67,30 +64,6 @@ public class AuthService: IAuthService
     {
         var identity = await _userIdentityRepository.GetByEmailAsync(loginDto.Email, includeUser: true);
         if (identity == null || !identity.VerifyCredentials(loginDto.Email, loginDto.Password)) return null;
-
-        return await GenerateTokenPair(identity);
-    }
-
-    public async Task<LoginResponseDto?> LoginWithOtp(LoginWithOtpDto loginDto)
-    {
-        var identity = await _userIdentityRepository.GetByEmailAsync(loginDto.Email, includeUser: true);
-        if (identity == null || loginDto.Otp == null || identity.Otp == null) return null;
-
-        var otpCode = loginDto.Otp;
-        var secret = _configuration["Cryptography:Tokens:OTPSecretKey"]!;
-        secret = secret ?? "";
-        var encoding = new ASCIIEncoding();
-        byte[] keyByte = encoding.GetBytes(secret);
-        byte[] messageBytes = encoding.GetBytes(otpCode);
-        string otpHash;
-        using (var hmacsha256 = new HMACSHA256(keyByte))
-        {
-            byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
-            otpHash = Convert.ToBase64String(hashmessage);
-        }
-
-        if (!otpHash.Equals(identity.Otp) || DateTime.UtcNow >= identity.OtpExpirationDateTime) return null;
-        identity.InvalidateOtp();
 
         return await GenerateTokenPair(identity);
     }
