@@ -40,9 +40,13 @@ public class UserRepository: IUserRepository
         }
     }
 
-    public async  Task<User> GetByIdAsync(int id)
+    public async Task<User> GetByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        var query = _users
+            .AsNoTracking()
+            .Where(u => u.Id == id);
+
+        return await query.FirstOrDefaultAsync();
     }
 
     public async Task<User> CreateAsync(User newObject)

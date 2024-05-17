@@ -1,3 +1,4 @@
+using bsep_dll.Models.Enums;
 using System.Runtime.Intrinsics.Arm;
 using System.Security.Cryptography;
 using System.Text;
@@ -15,6 +16,12 @@ public class UserIdentity
     public int OutputLength { get; init; }
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpirationDateTime { get; set; }
+    public string? ActivationToken { get; set; }
+    public DateTime? ActivationTokenExpirationDateTime { get; set; }
+    public string? Otp { get; set; }
+    public DateTime? OtpExpirationDateTime { get; set; }
+    public AcountStatusEnum AccountStatus { get; set; }
+    public DateTime? BlockedUntilDateTime { get; set; }
     public UserIdentity(string email, string password, byte[] salt, int iterations, int outputLength)
     {
         Email = email;
@@ -22,6 +29,7 @@ public class UserIdentity
         Salt = salt;
         Iterations = iterations;
         OutputLength = outputLength;
+        AccountStatus = AcountStatusEnum.ACTIVATION_PENDING;
     }
 
     public static UserIdentity CreateUserIdentity(string email, string password, int saltLength, int iterations, int outputLength)
@@ -69,5 +77,42 @@ public class UserIdentity
     {
         RefreshToken = null;
         RefreshTokenExpirationDateTime = null;
+    }
+
+    public bool VerifyActivationToken(string activationToken)
+    {
+        if (ActivationToken == null)
+            return false;
+        var hashToCompare = SHA256.HashData(Encoding.UTF8.GetBytes(activationToken));
+        return CryptographicOperations.FixedTimeEquals(hashToCompare, Convert.FromHexString(ActivationToken)) && DateTime.UtcNow < ActivationTokenExpirationDateTime;
+    }
+
+    public void SetActivationToken(string activationToken, DateTime expires)
+    {
+        ActivationToken = activationToken;
+        ActivationTokenExpirationDateTime = expires;
+    }
+
+    public void SetOtp(string otp, DateTime expires)
+    {
+        Otp = otp;
+        OtpExpirationDateTime = expires;
+    }
+
+    public void InvalidateOtp()
+    {
+        Otp = null;
+        OtpExpirationDateTime = null;
+    }
+
+    public void ActivateAccount()
+    {
+        AccountStatus = AcountStatusEnum.ACTIVATED;
+    }
+
+    public void BlockAccount()
+    {
+        AccountStatus = AcountStatusEnum.BLOCKED;
+        BlockedUntilDateTime = DateTime.UtcNow.AddMonths(3);
     }
 }

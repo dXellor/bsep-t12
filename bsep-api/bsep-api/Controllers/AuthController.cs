@@ -60,7 +60,23 @@ namespace bsep_api.Controllers
             result.RefreshToken = null;
             return Ok(result);
         }
-        
+
+        [HttpPost("loginWithOtp")]
+        [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> LoginWithOtp([FromBody] LoginWithOtpDto loginDto)
+        {
+            var result = await _authServiceService.LoginWithOtp(loginDto);
+            if (result == null)
+                return Unauthorized("Invalid credentials");
+
+            Response.SetRefreshTokenCookie(result.RefreshToken!);
+            result.RefreshToken = null;
+            return Ok(result);
+        }
+
+
         [HttpPost("refresh")]
         [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
