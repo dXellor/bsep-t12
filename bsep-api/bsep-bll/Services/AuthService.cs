@@ -8,6 +8,8 @@ using bsep_dll.Contracts;
 using bsep_dll.Data;
 using bsep_dll.Models;
 using bsep_dll.Models.Enums;
+using Google.Api.Gax.ResourceNames;
+using Google.Cloud.RecaptchaEnterprise.V1;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -85,6 +87,45 @@ public class AuthService: IAuthService
         return await GenerateTokenPair(identity);
     }
 
+    public async Task<bool> CreateReCaptchaAssessment(string token)
+    {
+        var client = await RecaptchaEnterpriseServiceClient.CreateAsync();
+        var projectName = new ProjectName("bsep-t12-2024");
+
+        // Build the assessment request.
+        var createAssessmentRequest = new CreateAssessmentRequest()
+        {
+            Assessment = new Assessment()
+            {
+                // Set the properties of the event to be tracked.
+                Event = new Event()
+                {
+                    SiteKey = _configuration["ReCaptcha:SiteKey"],
+                    Token = token,
+                },
+            },
+            ParentAsProjectName = projectName
+        };
+
+        var response = await client.CreateAssessmentAsync(createAssessmentRequest);
+
+        if (response.TokenProperties.Valid == false)
+        {
+            _logger.LogInformation("The CreateAssessment call failed because the token was: " + response.TokenProperties.InvalidReason.ToString());
+            return false;
+        }
+
+        // see: https://cloud.google.com/recaptcha-enterprise/docs/interpret-assessment
+        _logger.LogInformation("The reCAPTCHA score is: " + response.RiskAnalysis.Score);
+
+        foreach (var reason in response.RiskAnalysis.Reasons)
+        {
+            Console.WriteLine(reason.ToString());
+        }
+
+        return response.RiskAnalysis.Score >= 0.6;
+    }
+    
     private async Task<LoginResponseDto?> GenerateTokenPair(UserIdentity identity)
     {
         var userDto = _mapper.Map<User, UserDto>(identity.User!);

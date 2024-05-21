@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, filter, map, Observable} from 'rxjs';
+import { BehaviorSubject, filter, map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from '../models/user-interface';
 import { RegistrationRequest } from '../models/requests/registration-request-interface';
 import { LoginRequest } from '../models/requests/login-request-interface';
 import { LoginResponse } from '../models/responses/login-response-interface';
 import { ToastrService } from 'ngx-toastr';
-import {UserRoleEnum} from "../models/enums/user-role-enum";
+import { UserRoleEnum } from '../models/enums/user-role-enum';
 
 @Injectable({
   providedIn: 'root',
@@ -61,13 +61,14 @@ export class AuthService {
 
   public hasRole(role: UserRoleEnum): Observable<boolean> {
     return this.loggedInUser$.pipe(
-
-      filter(user => !!user),
+      filter((user) => !!user),
 
       // Map to a boolean indicating whether the user has the specified role
-      map(user => user?.role === role)
-
+      map((user) => user?.role === role)
     );
+  }
 
+  public requestReCaptchaScore(token: string) {
+    return this.http.get(`${this.url}/recaptchaAssessment/${token}`);
   }
 }

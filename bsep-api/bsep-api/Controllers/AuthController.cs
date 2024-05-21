@@ -93,5 +93,13 @@ namespace bsep_api.Controllers
 
             return Ok(result);
         }
+        
+        [HttpGet("recaptchaAssessment/{recaptchaToken}")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetRecaptchaAssessment([FromRoute] string recaptchaToken)
+        {
+            var result = await _authServiceService.CreateReCaptchaAssessment(recaptchaToken);
+            return Ok(result);
+        }
     }
 }

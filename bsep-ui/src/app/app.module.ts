@@ -22,8 +22,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { RegisterComponent } from './components/register/register.component';
 import { AdministratorProfilePageComponent } from './pages/administrator-profile-page/administrator-profile-page.component';
-import {MatButtonToggleModule} from "@angular/material/button-toggle";
-import {MatListModule} from "@angular/material/list";
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatListModule } from '@angular/material/list';
+import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module } from 'ng-recaptcha';
+import { environment } from 'src/environments/environment';
+import { NgHttpLoaderModule } from 'ng-http-loader';
 
 @NgModule({
   declarations: [
@@ -52,12 +55,20 @@ import {MatListModule} from "@angular/material/list";
     ToastrModule.forRoot(),
     MatButtonToggleModule,
     MatListModule,
+    RecaptchaV3Module,
+    HttpClientModule,
+    NgHttpLoaderModule.forRoot(),
   ],
+
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true,
+    },
+    {
+      provide: RECAPTCHA_V3_SITE_KEY,
+      useValue: environment.recaptcha.siteKey,
     },
   ],
   bootstrap: [AppComponent],
