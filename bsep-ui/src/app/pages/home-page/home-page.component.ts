@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/models/user-interface';
 import { AuthService } from 'src/app/services/auth.service';
-import {Router} from "@angular/router";
-import {UserRoleEnum} from "../../models/enums/user-role-enum";
+import { Router } from '@angular/router';
+import { UserRoleEnum } from '../../models/enums/user-role-enum';
+import { SecretService } from 'src/app/services/secret.service';
 
 @Component({
   selector: 'app-home-page',
@@ -12,7 +13,7 @@ import {UserRoleEnum} from "../../models/enums/user-role-enum";
 export class HomePageComponent implements OnInit {
   public loggedInUser?: User;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
     this.authService.loggedInUser$.subscribe((res) => {
@@ -20,10 +21,6 @@ export class HomePageComponent implements OnInit {
         this.loggedInUser = res;
       }
     });
-  }
-
-  goToAdminProfile() {
-    this.router.navigate(['/admin-profile']);
   }
 
   protected readonly Router = Router;

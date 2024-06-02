@@ -8,6 +8,7 @@ import { LoginRequest } from '../models/requests/login-request-interface';
 import { LoginResponse } from '../models/responses/login-response-interface';
 import { ToastrService } from 'ngx-toastr';
 import { UserRoleEnum } from '../models/enums/user-role-enum';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +19,11 @@ export class AuthService {
     undefined
   );
 
-  constructor(private http: HttpClient, private toastr: ToastrService) {}
+  constructor(
+    private http: HttpClient,
+    private toastr: ToastrService,
+    private router: Router
+  ) {}
 
   public register(request: RegistrationRequest): Observable<User> {
     return this.http.post<User>(`${this.url}/register`, request);
@@ -26,7 +31,14 @@ export class AuthService {
 
   public login(request: LoginRequest): void {
     this.http.post<LoginResponse>(`${this.url}/login`, request).subscribe({
-      next: (res) => this.saveLoggedInUser(res),
+      next: (res) => {
+        if (!res.redirectToTotp) {
+          this.saveLoggedInUser(res);
+        } else {
+          window.localStorage.setItem('email-for-2fa', res.user.email);
+          this.router.navigateByUrl('/two-factor');
+        }
+      },
       error: (error) => {
         this.clearLoggedInUser(),
           this.toastr.error('Invalid credentials', 'Login error', {
@@ -70,5 +82,39 @@ export class AuthService {
 
   public requestReCaptchaScore(token: string) {
     return this.http.get(`${this.url}/recaptchaAssessment/${token}`);
+  }
+
+  public getTwoFAQr() {
+    return this.http.get<string>(`${this.url}/totpQr`);
+  }
+
+  public enable2Fa(code: string) {
+    const body = {
+      email: '',
+      totp: code,
+    };
+
+    return this.http.post<boolean>(`${this.url}/enable2Fa`, body);
+  }
+
+  public login2Fa(code: string): void {
+    const body = {
+      email: window.localStorage.getItem('email-for-2fa'),
+      totp: code,
+    };
+
+    this.http.post<LoginResponse>(`${this.url}/totp`, body).subscribe({
+      next: (res) => {
+        window.localStorage.removeItem('email-for-2fa');
+        this.saveLoggedInUser(res);
+      },
+      error: (error) => {
+        this.toastr.error('Invalid code', '2FA Login error', {
+          closeButton: true,
+          progressBar: true,
+          extendedTimeOut: 2000,
+        });
+      },
+    });
   }
 }

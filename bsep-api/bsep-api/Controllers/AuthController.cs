@@ -55,7 +55,12 @@ namespace bsep_api.Controllers
             var result = await _authServiceService.Login(loginDto);
             if (result == null) 
                 return Unauthorized("Invalid credentials");
-            
+
+            if (result.RedirectToTotp)
+            {
+                return Ok(result);
+            }
+
             Response.SetRefreshTokenCookie(result.RefreshToken!);
             result.RefreshToken = null;
             return Ok(result);
@@ -99,6 +104,50 @@ namespace bsep_api.Controllers
         public async Task<IActionResult> GetRecaptchaAssessment([FromRoute] string recaptchaToken)
         {
             var result = await _authServiceService.CreateReCaptchaAssessment(recaptchaToken);
+            return Ok(result);
+        }
+        
+        [HttpPost("totp")]
+        [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ValidateTotp([FromBody] TotpDto totp)
+        {
+            var result = await _authServiceService.ValidateTotp(totp);
+            if (result == null)
+                return Unauthorized("Invalid totp");
+            
+            Response.SetRefreshTokenCookie(result.RefreshToken!);
+            result.RefreshToken = null;
+            return Ok(result);
+        }
+        
+        [Authorize]
+        [HttpPost("enable2Fa")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Enable2Fa([FromBody] TotpDto totp)
+        {
+            var email = User.GetClaim("email");
+            totp.Email = email;
+            var result = await _authServiceService.ValidateTotpAndEnableTwoFactorAuth(totp);
+            if (!result)
+                return BadRequest("Invalid totp");
+            
+            return Ok(result);
+        }
+        
+        [Authorize]
+        [HttpGet("totpQr")]
+        [ProducesResponseType(typeof(byte[]), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetTotpSecretQr()
+        {
+            var email = User.GetClaim("email");
+
+            var result = await _authServiceService.GetTotpSecretQr(email);
+            if (result == null)
+                return NotFound("2FA already enabled");
+            
             return Ok(result);
         }
     }

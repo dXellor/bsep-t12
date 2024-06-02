@@ -27,6 +27,11 @@ import { MatListModule } from '@angular/material/list';
 import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module } from 'ng-recaptcha';
 import { environment } from 'src/environments/environment';
 import { NgHttpLoaderModule } from 'ng-http-loader';
+import { TwoFactorFormComponent } from './components/two-factor-form/two-factor-form.component';
+import { EnableTfaPageComponent } from './pages/enable-tfa-page/enable-tfa-page.component';
+import { TfaPageComponent } from './pages/tfa-page/tfa-page.component';
+import { TwoFactorLoginFormComponent } from './components/two-factor-login-form/two-factor-login-form.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +41,11 @@ import { NgHttpLoaderModule } from 'ng-http-loader';
     LoginComponentComponent,
     RegisterComponent,
     AdministratorProfilePageComponent,
+    TwoFactorFormComponent,
+    EnableTfaPageComponent,
+    TfaPageComponent,
+    TwoFactorLoginFormComponent,
+    NavbarComponent,
   ],
   imports: [
     BrowserModule,

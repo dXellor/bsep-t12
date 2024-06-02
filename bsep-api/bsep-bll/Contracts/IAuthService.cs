@@ -9,4 +9,7 @@ public interface IAuthService
     Task<LoginResponseDto?> Login(LoginDto loginDto);
     Task<LoginResponseDto?> RefreshAccessToken(string accessToken, string refreshToken);
     Task<bool> CreateReCaptchaAssessment(string token);
+    Task<LoginResponseDto> ValidateTotp(TotpDto totpDto);
+    Task<bool> ValidateTotpAndEnableTwoFactorAuth(TotpDto totpDto);
+    Task<byte[]> GetTotpSecretQr(string email);
 }

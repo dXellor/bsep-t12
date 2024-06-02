@@ -15,6 +15,10 @@ public class UserIdentity
     public int OutputLength { get; init; }
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpirationDateTime { get; set; }
+    public bool TwoFaEnabled { get; set; }
+    public bool IsAwaitingTotp { get; init; }
+    public string? TotpSecret { get; set; }
+
     public UserIdentity(string email, string password, byte[] salt, int iterations, int outputLength)
     {
         Email = email;
@@ -63,11 +67,5 @@ public class UserIdentity
             return false;
         var hashToCompare = SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken));
         return CryptographicOperations.FixedTimeEquals(hashToCompare, Convert.FromHexString(RefreshToken)) && DateTime.UtcNow < RefreshTokenExpirationDateTime;
-    }
-
-    public void InvalidateRefreshToken()
-    {
-        RefreshToken = null;
-        RefreshTokenExpirationDateTime = null;
     }
 }

@@ -33,14 +33,12 @@ namespace bsep_dll.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("text")
                         .HasColumnName("address");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("text")
                         .HasColumnName("city");
 
                     b.Property<string>("CompanyName")
@@ -56,8 +54,7 @@ namespace bsep_dll.Migrations
 
                     b.Property<string>("Country")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("text")
                         .HasColumnName("country");
 
                     b.Property<string>("Email")
@@ -67,13 +64,11 @@ namespace bsep_dll.Migrations
                         .HasColumnName("email");
 
                     b.Property<string>("FirstName")
-                        .HasMaxLength(25)
-                        .HasColumnType("character varying(25)")
+                        .HasColumnType("text")
                         .HasColumnName("first_name");
 
                     b.Property<string>("LastName")
-                        .HasMaxLength(25)
-                        .HasColumnType("character varying(25)")
+                        .HasColumnType("text")
                         .HasColumnName("last_name");
 
                     b.Property<string>("Package")
@@ -83,8 +78,7 @@ namespace bsep_dll.Migrations
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("text")
                         .HasColumnName("phone");
 
                     b.Property<string>("Role")
@@ -111,6 +105,10 @@ namespace bsep_dll.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
 
+                    b.Property<bool>("IsAwaitingTotp")
+                        .HasColumnType("boolean")
+                        .HasColumnName("awaiting_totp");
+
                     b.Property<int>("Iterations")
                         .HasColumnType("integer")
                         .HasColumnName("iterations");
@@ -136,6 +134,14 @@ namespace bsep_dll.Migrations
                         .IsRequired()
                         .HasColumnType("bytea")
                         .HasColumnName("salt");
+
+                    b.Property<string>("TotpSecret")
+                        .HasColumnType("text")
+                        .HasColumnName("totp_secret");
+
+                    b.Property<bool>("TwoFaEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("two_fa_enabled");
 
                     b.HasKey("Email");
 
