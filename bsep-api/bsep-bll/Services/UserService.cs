@@ -82,6 +82,27 @@ namespace bsep_bll.Services
         {
             throw new NotImplementedException();
         }
+        
+        public async Task<int> DeleteByEmailAsync(string email)
+        {
+            try
+            {
+                var result = await _userRepository.DeleteByEmailAsync(email);
+                if (result == 0)
+                {
+                    _logger.LogWarning($"User with email {email} not found.");
+                    return 0;
+                }
+
+                _logger.LogInformation($"User with email {email} successfully deleted.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error deleting user with email {email}: {ex.Message}");
+                throw;
+            }
+        }
 
         public async Task<UserDto> GetByEmailAsync(string email)
         {

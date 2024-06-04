@@ -117,4 +117,8 @@ export class AuthService {
       },
     });
   }
+
+  public deleteUserByEmail(email: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/deleteUserByEmail?email=${email}`);
+  }
 }

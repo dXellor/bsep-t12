@@ -99,6 +99,18 @@ namespace bsep_dll.Repositories
         {
             throw new NotImplementedException();
         }
+        
+        public async Task<int> DeleteByEmailAsync(string email)
+        {
+            var user = await _dataContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+            {
+                return 0;
+            }
+
+            _dataContext.Users.Remove(user);
+            return await _dataContext.SaveChangesAsync();
+        }
 
         public async Task<User?> GetByEmailAsync(string email)
         {
