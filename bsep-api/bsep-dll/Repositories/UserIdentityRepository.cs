@@ -29,6 +29,27 @@ public class UserIdentityRepository: IUserIdentityRepository
     {
         throw new NotImplementedException();
     }
+    
+    public async Task<int> DeleteByEmailAsync(string email)
+    {
+        try
+        {
+            var userIdentity = await _identities.FirstOrDefaultAsync(ui => ui.Email == email);
+
+            if (userIdentity == null)
+            {
+                throw new KeyNotFoundException($"UserIdentity with email {email} not found.");
+            }
+
+            _identities.Remove(userIdentity);
+            return await _dataContext.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.ToString());
+            throw;
+        }
+    }
 
     public async Task<UserIdentity> CreateAsync(UserIdentity newObject)
     {

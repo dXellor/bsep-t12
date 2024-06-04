@@ -5,6 +5,7 @@
     <button mat-raised-button color="primary" [routerLink]="['enable-2fa']" *ngIf="loggedInUser">Enable 2FA</button>
     <button mat-raised-button color="primary" (click)="getSecret()" *ngIf="loggedInUser">Get Secret from VPN</button>
     <button mat-raised-button color="primary" [routerLink]="['signup']" *ngIf="!loggedInUser">Signup</button>
+    <button mat-raised-button color="primary" (click)="deleteData()" *ngIf="loggedInUser?.package==='Gold'">Remove my data</button>
     <button mat-raised-button color="primary" (click)="logOut()" *ngIf="loggedInUser">Log out</button>
   </div>
 </nav>
