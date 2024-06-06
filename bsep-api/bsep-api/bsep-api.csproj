@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>bsep_api</RootNamespace>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <UserSecretsId>72aff39e-3e58-494d-b13b-5a12b9ba6943</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
