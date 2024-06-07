@@ -11,4 +11,10 @@
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Migrations\20240502113155_Configure_Advertisement_TableDesinger.cs">
+        <DependentUpon>20240502113155_Configure_Advertisement_Table.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

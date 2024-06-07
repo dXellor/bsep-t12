@@ -11,6 +11,8 @@ public class DataContext: DbContext
     
     public DbSet<User> Users { get; init; }
     public DbSet<UserIdentity> Identities { get; init; }
+    
+    public DbSet<Advertisement> Advertisements { get; init; }
 
     public DataContext(DbContextOptions options, IConfiguration configuration) : base(options)
     {
@@ -27,5 +29,6 @@ public class DataContext: DbContext
     {
         modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new UserIdentityEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new AdvertisementConfiguration());
     }
 }
