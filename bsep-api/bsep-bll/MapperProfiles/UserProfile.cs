@@ -1,4 +1,5 @@
 using AutoMapper;
+using bsep_bll.Dtos;
 using bsep_bll.Dtos.Users;
 using bsep_dll.Helpers.Pagination;
 using bsep_dll.Models;
@@ -23,6 +24,7 @@ namespace bsep_bll.MapperProfiles
             CreateMap<User, UserRegistrationDto>().ReverseMap();
 
             CreateMap<RoleChange, RoleChangeDto>().ReverseMap();
+            CreateMap<Advertisement, AdvertisementDto>().ReverseMap();
         }
     }
 }

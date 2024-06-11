@@ -3,6 +3,7 @@ using bsep_bll.Contracts;
 using bsep_bll.Dtos;
 using bsep_dll.Contracts;
 using bsep_dll.Helpers.Pagination;
+using bsep_dll.Models;
 using Microsoft.Extensions.Logging;
 
 namespace bsep_bll.Services;
@@ -19,9 +20,21 @@ public class AdvertisementService : IAdvertisementService
         _mapper = mapper;
         _logger = logger;
     }
-    public Task<PagedList<AdvertisementDto>> GetAllAsync(QueryPageParameters queryParameters)
+    public async Task<PagedList<AdvertisementDto>> GetAllAsync(QueryPageParameters queryParameters)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var results = await _adRepository.GetAllAsync(queryParameters);
+            return PagedList<AdvertisementDto>.ConvertToDtoPagedList(
+                results.Select(u => _mapper.Map<Advertisement, AdvertisementDto>(u)).AsQueryable(),
+                results.CurrentPage,
+                results.PageSize);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.ToString());
+            throw;
+        }
     }
 
     public Task<AdvertisementDto> GetByIdAsync(int id)

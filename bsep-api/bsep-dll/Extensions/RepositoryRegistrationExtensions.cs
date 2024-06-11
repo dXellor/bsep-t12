@@ -10,5 +10,6 @@ public static class RepositoryRegistrationExtensions
     {
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserIdentityRepository, UserIdentityRepository>();
+        services.AddScoped<IAdvertisementRepository, AdvertisementRepository>();
     }
 }

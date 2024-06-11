@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using bsep_api.Extensions.Auth;
 using bsep_bll.Contracts;
+using bsep_bll.Dtos;
 using bsep_bll.Dtos.Users;
+using bsep_dll.Helpers.Pagination;
 using bsep_dll.Helpers.QueryParameters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,6 +24,18 @@ namespace bsep_api.Controllers
         public AdvertisementController(IAdvertisementService adService)
         {
             _adService = adService;
+        }
+        
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<AdvertisementDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetUsers([FromQuery] AdvertisementQueryParameters queryPageParameters)
+        {
+            var ads = await _adService.GetAllAsync(queryPageParameters);
+            var metadata = ads.GetMetadata();
+            
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata)); 
+            Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
+            return Ok(ads);
         }
         
     }
