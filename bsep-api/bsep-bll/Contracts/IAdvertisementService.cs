@@ -1,4 +1,4 @@
-using bsep_bll.Dtos;
+using bsep_bll.Dtos.Advertisements;
 
 namespace bsep_bll.Contracts;
 

@@ -1,4 +1,4 @@
-namespace bsep_bll.Dtos;
+namespace bsep_bll.Dtos.Advertisements;
 
 public class AdvertisementDto
 {

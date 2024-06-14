@@ -1,20 +1,14 @@
-using System.IO;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using bsep_api.Middleware;
 using bsep_bll.Extensions;
 using bsep_dll.Data;
 using bsep_dll.Extensions;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
-
-builder.WebHost.ConfigureKestrel((context, serverOptions) =>
-{
-    serverOptions.Configure(context.Configuration.GetSection("Kestrel"));
-});
 
 // Add services to the container.
 builder.Services.AddAuthentication(x =>
@@ -97,20 +91,20 @@ if (app.Environment.IsDevelopment())
         var swaggerJsonBasePath = "/swagger/v1/swagger.json";
         var swaggerEndpoint = Path.Combine(".", swaggerJsonBasePath);
         c.SwaggerEndpoint(swaggerEndpoint, "BSEP API v1");
-        
+
         c.RoutePrefix = "";
         c.OAuthClientId("swagger-ui");
         c.OAuthUsePkce();
     });
 }
 
-app.UseHttpsRedirection();
+app.UseRouting();
+
+app.UseMiddleware<RateLimitingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseCors("_allowChosenOrigins");
-
 app.MapControllers();
-
+app.UseCors("_allowChosenOrigins");
 app.Run();
