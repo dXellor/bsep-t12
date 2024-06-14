@@ -33,6 +33,10 @@ export class NavbarComponent implements OnInit {
     this.router.navigateByUrl('/signup');
   }
 
+  showAds(){
+    this.router.navigateByUrl('/ads')
+  }
+
   public getSecret() {
     this.secretService.getSecret();
   }
@@ -41,7 +45,7 @@ export class NavbarComponent implements OnInit {
     if (confirm('Are you sure you want to delete all of your data pernamently?')) {
       this.authService.deleteUserByEmail(this.loggedInUser?.email || '').subscribe({
         next: () => {
-          
+
         },
         error: (error) => {
           console.error('Error deleting user:', error);
@@ -52,5 +56,5 @@ export class NavbarComponent implements OnInit {
     }
   }
 
-  
+
 }

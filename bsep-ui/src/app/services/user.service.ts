@@ -8,7 +8,7 @@ import {RoleChangeRequest} from "../models/requests/role-change-request";
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'https://localhost:5213/api/User';
+  private apiUrl = 'http://localhost:5213/api/User';
 
   constructor(private http: HttpClient) { }
 

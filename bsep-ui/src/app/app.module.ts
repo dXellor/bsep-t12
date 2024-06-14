@@ -32,6 +32,7 @@ import { EnableTfaPageComponent } from './pages/enable-tfa-page/enable-tfa-page.
 import { TfaPageComponent } from './pages/tfa-page/tfa-page.component';
 import { TwoFactorLoginFormComponent } from './components/two-factor-login-form/two-factor-login-form.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { AdsPageComponent } from './pages/ads-page/ads-page/ads-page.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
     TfaPageComponent,
     TwoFactorLoginFormComponent,
     NavbarComponent,
+    AdsPageComponent,
   ],
   imports: [
     BrowserModule,
