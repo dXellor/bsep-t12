@@ -12,8 +12,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Migrations\20240502113155_Configure_Advertisement_TableDesinger.cs">
-        <DependentUpon>20240502113155_Configure_Advertisement_Table.cs</DependentUpon>
+      <Compile Update="Migrations\20230611134955_ads-v2.Designer.cs">
+        <DependentUpon>20240611134955_ads-v2.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 

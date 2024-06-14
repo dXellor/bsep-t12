@@ -24,4 +24,8 @@ export class UserService {
     const url = `${this.apiUrl}/changerole`;
     return this.http.put<User>(url, request);
   }
+
+  public deleteUserByEmail(email: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/deleteUserByEmail?email=${email}`);
+  }
 }

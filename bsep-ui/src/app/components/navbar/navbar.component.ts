@@ -4,6 +4,7 @@ import { UserRoleEnum } from 'src/app/models/enums/user-role-enum';
 import { User } from 'src/app/models/user-interface';
 import { AuthService } from 'src/app/services/auth.service';
 import { SecretService } from 'src/app/services/secret.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-navbar',
@@ -16,6 +17,7 @@ export class NavbarComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private userService: UserService,
     private secretService: SecretService,
     private router: Router
   ) {}
@@ -43,7 +45,7 @@ export class NavbarComponent implements OnInit {
 
   public deleteData() {
     if (confirm('Are you sure you want to delete all of your data pernamently?')) {
-      this.authService.deleteUserByEmail(this.loggedInUser?.email || '').subscribe({
+      this.userService.deleteUserByEmail(this.loggedInUser?.email || '').subscribe({
         next: () => {
 
         },

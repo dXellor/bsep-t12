@@ -18,10 +18,12 @@ namespace bsep_api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IAuthService _authService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IAuthService authService)
         {
             _userService = userService;
+            _authService = authService;
         }
 
         [Authorize]
@@ -87,6 +89,20 @@ namespace bsep_api.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error occurred while updating the user role.");
             }
+        }
+        
+        [Authorize]
+        [HttpDelete("deleteUserByEmail")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteUserByEmail([FromQuery] string email)
+        {
+            var result = await _userService.DeleteUserByEmailAsync(email);
+
+            if (result == 0)
+                return NotFound("User not found");
+
+            return Ok("User successfully deleted");
         }
     }
 }

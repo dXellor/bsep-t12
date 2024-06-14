@@ -13,12 +13,16 @@ namespace bsep_bll.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserIdentityRepository _userIdentityRepository;
+        private readonly IAdvertisementRepository _advertisementRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger)
+        public UserService(IUserRepository userRepository, IUserIdentityRepository userIdentityRepository, IAdvertisementRepository advertisementRepository, IMapper mapper, ILogger<UserService> logger)
         {
             _userRepository = userRepository;
+            _userIdentityRepository = userIdentityRepository;
+            _advertisementRepository = advertisementRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -129,6 +133,48 @@ namespace bsep_bll.Services
             catch (Exception ex)
             {
                 _logger.LogError($"Error updating role for user with email {request.Email}: {ex.Message}");
+                throw;
+            }
+        }
+        
+        public async Task<int> DeleteUserByEmailAsync(string email)
+        {
+            try
+            {
+                var user = await _userRepository.GetByEmailAsync(email);
+            
+                if (user == null)
+                {
+                    _logger.LogWarning($"User with email {email} not found.");
+                    return 0;
+                }
+                if (!user.Package.ToString().Equals(PackageTypeEnum.Gold.ToString()))
+                {
+                    _logger.LogWarning($"User with email {email} does not have the gold package.");
+                    return 0;
+                }
+                
+                var advertisements = await _advertisementRepository.GetAdvertisementsByUserIdAsync(user.Id);
+                foreach (var ad in advertisements)
+                {
+                    await _advertisementRepository.DeleteAsync(ad.Id);
+                }
+                
+                var userIdentityResult = await _userIdentityRepository.DeleteByEmailAsync(email);
+                var userResult = await _userRepository.DeleteByEmailAsync(email);
+
+                if (userIdentityResult == 0 || userResult == 0)
+                {
+                    _logger.LogWarning($"User with email {email} not found.");
+                    return 0;
+                }
+
+                _logger.LogInformation($"User with email {email} successfully deleted.");
+                return userIdentityResult + userResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error deleting user with email {email}: {ex.Message}");
                 throw;
             }
         }

@@ -150,19 +150,5 @@ namespace bsep_api.Controllers
             
             return Ok(result);
         }
-        
-        [Authorize]
-        [HttpDelete("deleteUserByEmail")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteUserByEmail([FromQuery] string email)
-        {
-            var result = await _authServiceService.DeleteUserByEmailAsync(email);
-
-            if (result == 0)
-                return NotFound("User not found");
-
-            return Ok("User successfully deleted");
-        }
     }
 }

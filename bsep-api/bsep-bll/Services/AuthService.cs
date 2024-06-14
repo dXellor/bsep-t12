@@ -205,38 +205,4 @@ public class AuthService: IAuthService
         return new LoginResponseDto(userDto, accessToken, refreshToken, false);
     }
     
-    public async Task<int> DeleteUserByEmailAsync(string email)
-    {
-        try
-        {
-            var user = await _userRepository.GetByEmailAsync(email);
-            
-            if (user == null)
-            {
-                _logger.LogWarning($"User with email {email} not found.");
-                return 0;
-            }
-            if (!user.Package.ToString().Equals(PackageTypeEnum.Gold.ToString()))
-            {
-                _logger.LogWarning($"User with email {email} does not have the gold package.");
-                return 0;
-            }
-            var userIdentityResult = await _userIdentityRepository.DeleteByEmailAsync(email);
-            var userResult = await _userRepository.DeleteByEmailAsync(email);
-
-            if (userIdentityResult == 0 || userResult == 0)
-            {
-                _logger.LogWarning($"User with email {email} not found.");
-                return 0;
-            }
-
-            _logger.LogInformation($"User with email {email} successfully deleted.");
-            return userIdentityResult + userResult;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error deleting user with email {email}: {ex.Message}");
-            throw;
-        }
-    }
 }
