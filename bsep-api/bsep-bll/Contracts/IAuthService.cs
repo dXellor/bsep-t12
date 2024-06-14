@@ -12,5 +12,4 @@ public interface IAuthService
     Task<LoginResponseDto> ValidateTotp(TotpDto totpDto);
     Task<bool> ValidateTotpAndEnableTwoFactorAuth(TotpDto totpDto);
     Task<byte[]> GetTotpSecretQr(string email);
-    Task<int> DeleteUserByEmailAsync(string email);
 }

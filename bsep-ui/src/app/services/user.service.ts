@@ -8,7 +8,7 @@ import {RoleChangeRequest} from "../models/requests/role-change-request";
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'https://localhost:5213/api/User';
+  private apiUrl = 'http://localhost:5213/api/User';
 
   constructor(private http: HttpClient) { }
 
@@ -23,5 +23,9 @@ export class UserService {
   changeRole(request: RoleChangeRequest): Observable<User> {
     const url = `${this.apiUrl}/changerole`;
     return this.http.put<User>(url, request);
+  }
+
+  public deleteUserByEmail(email: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/deleteUserByEmail?email=${email}`);
   }
 }

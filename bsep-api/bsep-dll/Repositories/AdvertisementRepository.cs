@@ -61,6 +61,20 @@ public class AdvertisementRepository : IAdvertisementRepository
 
     public Task<int> DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        var advertisement = _dataContext.Advertisements.Find(id);
+        if (advertisement != null)
+        {
+            _dataContext.Advertisements.Remove(advertisement);
+            _dataContext.SaveChanges();
+            return Task.FromResult(1); 
+        }
+        return Task.FromResult(0);
+    }
+    
+    public async Task<List<Advertisement>> GetAdvertisementsByUserIdAsync(int userId)
+    {
+        return await _dataContext.Advertisements
+            .Where(ad => ad.UserId == userId)
+            .ToListAsync();
     }
 }
