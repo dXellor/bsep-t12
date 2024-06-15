@@ -16,11 +16,13 @@ namespace bsep_api.Controllers
     {
         private readonly IAuthService _authServiceService;
         private readonly IUserService _userService;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IAuthService authService, IUserService userService)
+        public AuthController(IAuthService authService, IUserService userService, ILogger<AuthController> logger)
         {
             _authServiceService = authService;
             _userService = userService;
+            _logger = logger;
         }
 
         [HttpPost("register")]
@@ -53,8 +55,11 @@ namespace bsep_api.Controllers
                 return BadRequest(validationResult.Errors.First());
             
             var result = await _authServiceService.Login(loginDto);
-            if (result == null) 
+            if (result == null)
+            {
+                _logger.LogInformation("{@RequestName} by {@UserInfo} from {@IpAddress}", "Failed login", loginDto.Email, Request.HttpContext.Connection.RemoteIpAddress.ToString());
                 return Unauthorized("Invalid credentials");
+            }
 
             if (result.RedirectToTotp)
             {
@@ -65,7 +70,7 @@ namespace bsep_api.Controllers
             result.RefreshToken = null;
             return Ok(result);
         }
-        
+
         [HttpPost("refresh")]
         [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -74,7 +79,10 @@ namespace bsep_api.Controllers
             var accessToken = Request.GetJwt();
             var refreshToken = Request.GetCookie("refresh-token");
             if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
+            {
+                _logger.LogWarning("Refresh endpoint contacted without needed tokens from {@IpAddress}", Request.HttpContext.Connection.RemoteIpAddress.ToString());
                 return Unauthorized("Access token and Refresh token are not set");
+            }
             
             var result = await _authServiceService.RefreshAccessToken(accessToken, refreshToken);
             if (result != null)
@@ -114,7 +122,10 @@ namespace bsep_api.Controllers
         {
             var result = await _authServiceService.ValidateTotp(totp);
             if (result == null)
+            {
+                _logger.LogInformation("{@RequestName} by {@UserInfo} from {@IpAddress}", "Failed totp login", totp.Email, Request.HttpContext.Connection.RemoteIpAddress.ToString());
                 return Unauthorized("Invalid totp");
+            }
             
             Response.SetRefreshTokenCookie(result.RefreshToken!);
             result.RefreshToken = null;

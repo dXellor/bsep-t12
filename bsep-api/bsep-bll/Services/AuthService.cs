@@ -61,7 +61,8 @@ public class AuthService: IAuthService
         }
         catch (Exception e)
         {
-            _logger.LogError("Unable to register user, rollback");
+            _logger.LogError("{@RequestName} for {@User}", "Failed user registration", registrationDto.Email);
+            _logger.LogInformation("{@RequestName}", "Rollback partial registration transaction");
             return null;
         }
     }
@@ -98,8 +99,11 @@ public class AuthService: IAuthService
 
         var identity = await _userIdentityRepository.GetByEmailAsync(emailClaim.Value, includeUser: true);
         if (!identity!.VerifyRefreshToken(refreshToken))
+        {
+            _logger.LogInformation("{@RequestName} for {@User}", "Invalid refresh token", identity.Email);
             return null;
-
+        }
+        
         return await GenerateTokenPair(identity);
     }
 
@@ -202,6 +206,7 @@ public class AuthService: IAuthService
         identity.SetRefreshToken(refreshToken.Token, refreshToken.Expires);
         await _userIdentityRepository.UpdateAsync(identity);
 
+        _logger.LogInformation("{@RequestName} for {@User}", "New token pair generated", identity.Email);
         return new LoginResponseDto(userDto, accessToken, refreshToken, false);
     }
     

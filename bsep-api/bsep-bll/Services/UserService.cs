@@ -56,30 +56,18 @@ namespace bsep_bll.Services
 
         public async Task<UserDto> UpdateAsync(UserDto updatedUser)
         {
-            try
+            var existingUser = await _userRepository.GetByEmailAsync(updatedUser.Email);
+
+            if (existingUser == null)
             {
-                var existingUser = await _userRepository.GetByEmailAsync(updatedUser.Email);
-
-                if (existingUser == null)
-                {
-                    _logger.LogWarning($"User with email {updatedUser.Email} not found.");
-                    return null;
-                }
-
-                // Map updatedUser to existingUser
-                _mapper.Map(updatedUser, existingUser);
-
-                var updatedEntity = await _userRepository.UpdateAsync(existingUser);
-
-                _logger.LogInformation($"User with email {updatedUser.Email} successfully updated.");
-
-                return _mapper.Map<User, UserDto>(updatedEntity);
+                return null;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error updating user with email {updatedUser.Email}: {ex.Message}");
-                throw;
-            }
+
+            // Map updatedUser to existingUser
+            _mapper.Map(updatedUser, existingUser);
+
+            var updatedEntity = await _userRepository.UpdateAsync(existingUser);
+            return _mapper.Map<User, UserDto>(updatedEntity);
         }
 
         public Task<int> DeleteAsync(int id)
@@ -94,16 +82,16 @@ namespace bsep_bll.Services
                 var result = await _userRepository.DeleteByEmailAsync(email);
                 if (result == 0)
                 {
-                    _logger.LogWarning($"User with email {email} not found.");
+                    _logger.LogWarning("{@RequestName} {@Email}", "Requested removal of data for the email which is not in the system", email);
                     return 0;
                 }
 
-                _logger.LogInformation($"User with email {email} successfully deleted.");
+                _logger.LogInformation("{@RequestName} for {@Email}", "Data removed", email);
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error deleting user with email {email}: {ex.Message}");
+                _logger.LogError("{@RequestName} {@Email} with {@Error}", "Failed data removal for ", email, ex);
                 throw;
             }
         }
@@ -116,67 +104,44 @@ namespace bsep_bll.Services
         
         public async Task<UserDto> ChangeRoleAsync(RoleChangeDto request)
         {
-            try
+            var updatedUser = await _userRepository.ChangeRoleAsync(_mapper.Map<RoleChangeDto, RoleChange>(request));
+
+            if (updatedUser == null)
             {
-                var updatedUser = await _userRepository.ChangeRoleAsync(_mapper.Map<RoleChangeDto, RoleChange>(request));
-
-                if (updatedUser == null)
-                {
-                    _logger.LogWarning($"User with email {request.Email} not found.");
-                    return null;
-                }
-
-                _logger.LogInformation($"User with email {request.Email} successfully updated role to {request.NewRole}.");
-
-                return _mapper.Map<User, UserDto>(updatedUser);
+                return null;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error updating role for user with email {request.Email}: {ex.Message}");
-                throw;
-            }
+
+            return _mapper.Map<User, UserDto>(updatedUser);
         }
         
         public async Task<int> DeleteUserByEmailAsync(string email)
         {
-            try
+            var user = await _userRepository.GetByEmailAsync(email);
+        
+            if (user == null)
             {
-                var user = await _userRepository.GetByEmailAsync(email);
+                return 0;
+            }
+            if (!user.Package.ToString().Equals(PackageTypeEnum.Gold.ToString()))
+            {
+                return 0;
+            }
             
-                if (user == null)
-                {
-                    _logger.LogWarning($"User with email {email} not found.");
-                    return 0;
-                }
-                if (!user.Package.ToString().Equals(PackageTypeEnum.Gold.ToString()))
-                {
-                    _logger.LogWarning($"User with email {email} does not have the gold package.");
-                    return 0;
-                }
-                
-                var advertisements = await _advertisementRepository.GetAdvertisementsByUserIdAsync(user.Id);
-                foreach (var ad in advertisements)
-                {
-                    await _advertisementRepository.DeleteAsync(ad.Id);
-                }
-                
-                var userIdentityResult = await _userIdentityRepository.DeleteByEmailAsync(email);
-                var userResult = await _userRepository.DeleteByEmailAsync(email);
-
-                if (userIdentityResult == 0 || userResult == 0)
-                {
-                    _logger.LogWarning($"User with email {email} not found.");
-                    return 0;
-                }
-
-                _logger.LogInformation($"User with email {email} successfully deleted.");
-                return userIdentityResult + userResult;
-            }
-            catch (Exception ex)
+            var advertisements = await _advertisementRepository.GetAdvertisementsByUserIdAsync(user.Id);
+            foreach (var ad in advertisements)
             {
-                _logger.LogError($"Error deleting user with email {email}: {ex.Message}");
-                throw;
+                await _advertisementRepository.DeleteAsync(ad.Id);
             }
+            
+            var userIdentityResult = await _userIdentityRepository.DeleteByEmailAsync(email);
+            var userResult = await _userRepository.DeleteByEmailAsync(email);
+
+            if (userIdentityResult == 0 || userResult == 0)
+            {
+                return 0;
+            }
+
+            return userIdentityResult + userResult;
         }
 
     }

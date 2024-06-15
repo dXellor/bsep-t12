@@ -3,6 +3,7 @@ using bsep_api.Middleware;
 using bsep_bll.Extensions;
 using bsep_dll.Data;
 using bsep_dll.Extensions;
+using Serilog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -79,6 +80,11 @@ builder.Services.AddCors(options =>
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
+});
+
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration.ReadFrom.Configuration(context.Configuration);
 });
 
 var app = builder.Build();

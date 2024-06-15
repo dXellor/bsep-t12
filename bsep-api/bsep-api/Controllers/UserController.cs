@@ -18,12 +18,10 @@ namespace bsep_api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IAuthService _authService;
-
+        
         public UserController(IUserService userService, IAuthService authService)
         {
             _userService = userService;
-            _authService = authService;
         }
 
         [Authorize]
