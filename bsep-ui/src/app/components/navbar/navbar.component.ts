@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { UserRoleEnum } from 'src/app/models/enums/user-role-enum';
 import { User } from 'src/app/models/user-interface';
 import { AuthService } from 'src/app/services/auth.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { SecretService } from 'src/app/services/secret.service';
 import { UserService } from 'src/app/services/user.service';
 
@@ -19,6 +21,8 @@ export class NavbarComponent implements OnInit {
     private authService: AuthService,
     private userService: UserService,
     private secretService: SecretService,
+    private notificationsService: NotificationService,
+    private toastr: ToastrService,
     private router: Router
   ) {}
 
@@ -27,6 +31,27 @@ export class NavbarComponent implements OnInit {
       if (res) {
         this.loggedInUser = res;
       }
+    });
+    this.notificationsService.startConnection().subscribe(() => {
+      this.notificationsService.receiveMessage().subscribe((message) => {
+        this.toastr.error(message, 'ATTENTION ERROR!', {
+          closeButton: true,
+          progressBar: true,
+          extendedTimeOut: 2000,
+        });
+
+        if(! ('Notification' in window) ){
+          console.log('Web Notification not supported');
+          return;
+          }   
+      
+          Notification.requestPermission(function(permission){
+                  var notification = new Notification("ERROR",{body:message,icon:'https://cdn0.iconfinder.com/data/icons/psychology-disorder-aqua-vol-2/500/Panic_Attack-512.png', dir:'auto'});
+                  setTimeout(function(){
+                      notification.close();
+                  },3000);
+          });
+      });
     });
   }
 

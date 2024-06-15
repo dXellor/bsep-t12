@@ -82,6 +82,8 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddSignalR();
+
 builder.Host.UseSerilog((context, configuration) =>
 {
     configuration.ReadFrom.Configuration(context.Configuration);
@@ -112,5 +114,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<SignalRHub>("notifications");
 app.UseCors("_allowChosenOrigins");
 app.Run();

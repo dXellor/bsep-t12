@@ -15,5 +15,6 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<IAdvertisementService, AdvertisementService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IMonitoringService, MonitoringService>();
+        services.AddScoped<INotificationService, NotificationService>();
     }
 }

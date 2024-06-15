@@ -21,7 +21,11 @@ export class UsersTableComponent {
 
   onBlockClicked(user: User): void{
     this.userService.blockUser(user.email).subscribe((res) => {
-      console.log(res); // improve with toast message
+      this.toastr.success("User blocked", 'Success', {
+        closeButton: true,
+        progressBar: true,
+        extendedTimeOut: 2000,
+      });
     });
   }
 }

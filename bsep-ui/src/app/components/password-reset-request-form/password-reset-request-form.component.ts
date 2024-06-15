@@ -40,7 +40,11 @@ export class PasswordResetRequestFormComponent {
   public sendPasswordResetRequest(): void {
     const email = this.form.get('email')?.value;
     this.authService.startPasswordReset(email).subscribe((res) => {
-      console.log(res); // improve with toast message
+      this.toastr.success('Password reset link has been sent', 'Check your email', {
+        closeButton: true,
+        progressBar: true,
+        extendedTimeOut: 2000,
+      });
     });
   }
 }

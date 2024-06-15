@@ -2,6 +2,7 @@ using bsep_api.Extensions.Auth;
 using bsep_api.Extensions.Http;
 using bsep_api.Helpers.Validation.Auth;
 using bsep_api.Helpers.Validation.User;
+using bsep_api.Middleware;
 using bsep_bll.Contracts;
 using bsep_bll.Dtos.Auth;
 using bsep_bll.Dtos.Users;
@@ -17,12 +18,14 @@ namespace bsep_api.Controllers
         private readonly IAuthService _authServiceService;
         private readonly IUserService _userService;
         private readonly ILogger<AuthController> _logger;
+        private readonly SignalRHub signalRHub;
 
         public AuthController(IAuthService authService, IUserService userService, ILogger<AuthController> logger)
         {
             _authServiceService = authService;
             _userService = userService;
             _logger = logger;
+            signalRHub = new SignalRHub();
         }
 
         [HttpPost("register")]
@@ -81,6 +84,7 @@ namespace bsep_api.Controllers
             if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
             {
                 _logger.LogWarning("Refresh endpoint contacted without needed tokens from {@IpAddress}", Request.HttpContext.Connection.RemoteIpAddress.ToString());
+                await signalRHub.SendMessage("Refresh endpoint contacted without needed tokens");
                 return Unauthorized("Access token and Refresh token are not set");
             }
             

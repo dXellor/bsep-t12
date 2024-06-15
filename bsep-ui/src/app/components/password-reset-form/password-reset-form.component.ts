@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -11,6 +11,7 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./password-reset-form.component.scss']
 })
 export class PasswordResetFormComponent {
+  @Output() navigateToLogin = new EventEmitter<void>();
   public form: FormGroup;
   private passwordResetRequest: PasswordResetRequest = {email: "", token: "", password: ""};
 
@@ -22,8 +23,8 @@ export class PasswordResetFormComponent {
     private activatedRoute: ActivatedRoute
   ) {
     this.form = fb.group({
-      email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
+      password2: ['', [Validators.required]],
     });
   }
 
@@ -45,10 +46,23 @@ export class PasswordResetFormComponent {
   }
 
   public resetPassword(): void {
-    // validation missing
-    const email = this.form.get('email')?.value;
-    this.authService.resetPassword(this.passwordResetRequest).subscribe((res) => {
-      console.log(res); // improve with toast message
-    });
+    this.passwordResetRequest.password = this.form.get('password')?.value;
+    try {
+      this.authService.resetPassword(this.passwordResetRequest).subscribe((res) => {
+        this.toastr.success('Password reset success', 'Success', {
+          closeButton: true,
+          progressBar: true,
+          extendedTimeOut: 2000,
+        });
+        this.navigateToLogin.emit();
+      });
+    } catch(err) {
+      this.toastr.error('Your link seems to be invalid', 'Error', {
+        closeButton: true,
+        progressBar: true,
+        extendedTimeOut: 2000,
+      });
+      this.navigateToLogin.emit();
+    }
   }
 }

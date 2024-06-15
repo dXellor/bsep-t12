@@ -14,6 +14,9 @@
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="13.0.1" />
       <PackageReference Include="Google.Cloud.RecaptchaEnterprise.V1" Version="2.13.0" />
+      <PackageReference Include="Microsoft.AspNet.SignalR.Client" Version="2.4.3" />
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client.Core" Version="8.0.6" />
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
       <PackageReference Include="Otp.NET" Version="1.4.0" />
       <PackageReference Include="QRCoder" Version="1.5.1" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.1" />

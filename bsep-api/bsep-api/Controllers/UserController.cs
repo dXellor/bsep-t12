@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using bsep_api.Extensions.Auth;
+using bsep_api.Middleware;
 using bsep_bll.Contracts;
 using bsep_bll.Dtos.Users;
 using bsep_dll.Helpers.QueryParameters;
@@ -19,10 +20,12 @@ namespace bsep_api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        
+        private readonly SignalRHub signalRHub;
+
         public UserController(IUserService userService, IAuthService authService)
         {
             _userService = userService;
+            signalRHub = new SignalRHub();
         }
 
         [Authorize]

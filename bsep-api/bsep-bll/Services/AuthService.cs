@@ -13,6 +13,7 @@ using bsep_dll.Models;
 using bsep_dll.Models.Enums;
 using Google.Api.Gax.ResourceNames;
 using Google.Cloud.RecaptchaEnterprise.V1;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QRCoder;
@@ -29,8 +30,8 @@ public class AuthService: IAuthService
     private readonly IConfiguration _configuration;
     private readonly ITotpService _totpService;
     private readonly IEmailService _emailService;
-
-    public AuthService(IUserIdentityRepository userIdentityRepository, IEmailService emailService, IUserRepository userRepository, IMapper mapper, ILogger<AuthService> logger, IConfiguration configuration, ITokenService tokenService, ITotpService totpService)
+    private readonly INotificationService _notificationService;
+    public AuthService(IUserIdentityRepository userIdentityRepository, INotificationService notificationService, IEmailService emailService, IUserRepository userRepository, IMapper mapper, ILogger<AuthService> logger, IConfiguration configuration, ITokenService tokenService, ITotpService totpService)
     {
         _userIdentityRepository = userIdentityRepository;
         _userRepository = userRepository;
@@ -40,6 +41,7 @@ public class AuthService: IAuthService
         _configuration = configuration;
         _totpService = totpService;
         _emailService = emailService;
+        _notificationService = notificationService;
     }
     
     public async Task<UserDto?> Register(UserRegistrationDto registrationDto)
@@ -73,6 +75,9 @@ public class AuthService: IAuthService
 
     public async Task<LoginResponseDto?> Login(LoginDto loginDto)
     {
+        //_notificationService.Connect();
+        //await _notificationService.SendMessage("Test Message"); // ??????????
+
         var identity = await _userIdentityRepository.GetByEmailAsync(loginDto.Email, includeUser: true);
         if (identity == null || !identity.VerifyCredentials(loginDto.Email, loginDto.Password) || identity.IsBlocked()) return null;
 
