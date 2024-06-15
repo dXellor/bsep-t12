@@ -11,10 +11,4 @@
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Update="Migrations\20230611134955_ads-v2.Designer.cs">
-        <DependentUpon>20240611134955_ads-v2.cs</DependentUpon>
-      </Compile>
-    </ItemGroup>
-
 </Project>

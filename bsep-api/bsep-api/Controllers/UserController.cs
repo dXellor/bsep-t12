@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using static Google.Cloud.RecaptchaEnterprise.V1.AccountVerificationInfo.Types;
 
 namespace bsep_api.Controllers
 {
@@ -101,6 +102,18 @@ namespace bsep_api.Controllers
                 return NotFound("User not found");
 
             return Ok("User successfully deleted");
+        }
+
+        [Authorize]
+        [HttpPut("block")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> BlockUser([FromQuery] string email)
+        {
+            var result = await _userService.BlockUser(email);
+            if (!result)
+                return NotFound("User with the email " + email + " not found");
+            return Ok("User blocked");
         }
     }
 }

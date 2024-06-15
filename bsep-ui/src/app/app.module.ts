@@ -33,6 +33,10 @@ import { TfaPageComponent } from './pages/tfa-page/tfa-page.component';
 import { TwoFactorLoginFormComponent } from './components/two-factor-login-form/two-factor-login-form.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { AdsPageComponent } from './pages/ads-page/ads-page/ads-page.component';
+import { PasswordResetRequestFormComponent } from './components/password-reset-request-form/password-reset-request-form.component';
+import { PasswordResetFormComponent } from './components/password-reset-form/password-reset-form.component';
+import { UsersTableComponent } from './components/users-table/users-table.component';
+import { AdministratorUserManagingPageComponent } from './pages/administrator-user-managing-page/administrator-user-managing-page.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +52,10 @@ import { AdsPageComponent } from './pages/ads-page/ads-page/ads-page.component';
     TwoFactorLoginFormComponent,
     NavbarComponent,
     AdsPageComponent,
+    PasswordResetRequestFormComponent,
+    PasswordResetFormComponent,
+    UsersTableComponent,
+    AdministratorUserManagingPageComponent
   ],
   imports: [
     BrowserModule,

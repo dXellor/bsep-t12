@@ -7,6 +7,8 @@ using bsep_dll.Models;
 using bsep_dll.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace bsep_bll.Services
 {
@@ -17,14 +19,16 @@ namespace bsep_bll.Services
         private readonly IAdvertisementRepository _advertisementRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
+        private readonly IEmailService _emailService;
 
-        public UserService(IUserRepository userRepository, IUserIdentityRepository userIdentityRepository, IAdvertisementRepository advertisementRepository, IMapper mapper, ILogger<UserService> logger)
+        public UserService(IUserRepository userRepository, IEmailService emailService, IUserIdentityRepository userIdentityRepository, IAdvertisementRepository advertisementRepository, IMapper mapper, ILogger<UserService> logger)
         {
             _userRepository = userRepository;
             _userIdentityRepository = userIdentityRepository;
             _advertisementRepository = advertisementRepository;
             _mapper = mapper;
             _logger = logger;
+            _emailService = emailService;
         }
 
         public async Task<PagedList<UserDto>> GetAllAsync(QueryPageParameters queryParameters)
@@ -144,5 +148,16 @@ namespace bsep_bll.Services
             return userIdentityResult + userResult;
         }
 
+        public async Task<bool> BlockUser(string email)
+        {
+            var identity = await _userIdentityRepository.GetByEmailAsync(email);
+            if (identity == null)
+                return false;
+
+            identity.BlockAccount();
+            await _userIdentityRepository.UpdateAsync(identity);
+            _emailService.SendBlockMessage(email);
+            return true;
+        }
     }
 }

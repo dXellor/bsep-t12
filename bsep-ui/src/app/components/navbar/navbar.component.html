@@ -1,7 +1,7 @@
 <nav>
   <div class="nav-bar">
     <button mat-raised-button color="primary" [routerLink]="['']" *ngIf="loggedInUser">Home</button>
-    <button mat-raised-button color="primary" [routerLink]="['admin-profile']" *ngIf="loggedInUser && loggedInUser.role === UserRoleEnum.Administrator">Admin Profile</button>
+    <button mat-raised-button color="primary" [routerLink]="['admin-user-managing']" *ngIf="loggedInUser && loggedInUser.role === UserRoleEnum.Administrator">Manage Users</button>
     <button mat-raised-button color="primary" [routerLink]="['enable-2fa']" *ngIf="loggedInUser">Enable 2FA</button>
     <button mat-raised-button color="primary" (click)="getSecret()" *ngIf="loggedInUser">Get Secret from VPN</button>
     <button mat-raised-button color="primary" [routerLink]="['signup']" *ngIf="!loggedInUser">Signup</button>

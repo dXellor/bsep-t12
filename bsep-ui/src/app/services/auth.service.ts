@@ -9,6 +9,7 @@ import { LoginResponse } from '../models/responses/login-response-interface';
 import { ToastrService } from 'ngx-toastr';
 import { UserRoleEnum } from '../models/enums/user-role-enum';
 import { Router } from '@angular/router';
+import { PasswordResetRequest } from '../models/requests/password-reset-request-interface';
 
 @Injectable({
   providedIn: 'root',
@@ -118,5 +119,11 @@ export class AuthService {
     });
   }
 
-  
+  public startPasswordReset(email: string) {
+    return this.http.post(`${this.url}/startPasswordReset/${email}`, {});
+  }
+
+  public resetPassword(passwordResetRequest: PasswordResetRequest) {
+    return this.http.post(`${this.url}/resetPassword`, passwordResetRequest);
+  }
 }

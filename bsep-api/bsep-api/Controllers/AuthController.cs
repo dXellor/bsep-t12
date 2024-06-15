@@ -161,5 +161,27 @@ namespace bsep_api.Controllers
             
             return Ok(result);
         }
+
+        [HttpPost("resetPassword")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+        {
+            var result = await _authServiceService.ResetPassword(resetPasswordDto);
+            if (!result)
+                return Unauthorized("Your password reset link seems to be invalid.");
+            return Ok("Password reset successful");
+        }
+
+        [HttpPost("startPasswordReset/{email}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> StartPasswordReset(string email)
+        {
+            var result = await _authServiceService.StartPasswordReset(email);
+            if (!result)
+                return NotFound("User with the email " + email + " not found");
+            return Ok("Password reset link sent to the email");
+        }
     }
 }

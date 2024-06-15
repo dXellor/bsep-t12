@@ -1,4 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
+using System.Text;
 using System.Transactions;
 using AutoMapper;
 using bsep_bll.Contracts;
@@ -26,8 +28,9 @@ public class AuthService: IAuthService
     private readonly ILogger<AuthService> _logger;
     private readonly IConfiguration _configuration;
     private readonly ITotpService _totpService;
+    private readonly IEmailService _emailService;
 
-    public AuthService(IUserIdentityRepository userIdentityRepository, IUserRepository userRepository, IMapper mapper, ILogger<AuthService> logger, IConfiguration configuration, ITokenService tokenService, ITotpService totpService)
+    public AuthService(IUserIdentityRepository userIdentityRepository, IEmailService emailService, IUserRepository userRepository, IMapper mapper, ILogger<AuthService> logger, IConfiguration configuration, ITokenService tokenService, ITotpService totpService)
     {
         _userIdentityRepository = userIdentityRepository;
         _userRepository = userRepository;
@@ -36,6 +39,7 @@ public class AuthService: IAuthService
         _logger = logger;
         _configuration = configuration;
         _totpService = totpService;
+        _emailService = emailService;
     }
     
     public async Task<UserDto?> Register(UserRegistrationDto registrationDto)
@@ -70,7 +74,7 @@ public class AuthService: IAuthService
     public async Task<LoginResponseDto?> Login(LoginDto loginDto)
     {
         var identity = await _userIdentityRepository.GetByEmailAsync(loginDto.Email, includeUser: true);
-        if (identity == null || !identity.VerifyCredentials(loginDto.Email, loginDto.Password)) return null;
+        if (identity == null || !identity.VerifyCredentials(loginDto.Email, loginDto.Password) || identity.IsBlocked()) return null;
 
         if (identity.TwoFaEnabled)
         {
@@ -87,6 +91,41 @@ public class AuthService: IAuthService
         return await GenerateTokenPair(identity);
     }
 
+    public async Task<bool> IsPasswordResetLinkValid(ResetPasswordDto resetPasswordDto)
+    {
+        var identity = await _userIdentityRepository.GetByEmailAsync(resetPasswordDto.Email);
+        if (identity == null || !identity.IsTokenValid(resetPasswordDto.Token, _configuration["Cryptography:Tokens:ActivationTokenSecretKey"]! ?? ""))
+            return false;
+        return true;
+    }
+
+    public async Task<bool> ResetPassword(ResetPasswordDto resetPasswordDto)
+    {
+        var identity = await _userIdentityRepository.GetByEmailAsync(resetPasswordDto.Email);
+        if (identity == null || resetPasswordDto.Token == null || resetPasswordDto.Password == null)
+            return false;
+
+        if(!identity.IsTokenValid(resetPasswordDto.Token, _configuration["Cryptography:Tokens:ActivationTokenSecretKey"]! ?? "")) return false;
+
+        identity.InvalidatePasswordResetToken();
+        identity.SetNewPassword(resetPasswordDto.Password, int.Parse(_configuration["Cryptography:Password:SaltLength"]!));
+        await _userIdentityRepository.UpdateAsync(identity);
+        return true;
+    }
+
+    public async Task<bool> StartPasswordReset(string email)
+    {
+        var identity = await _userIdentityRepository.GetByEmailAsync(email);
+        if (identity == null || identity.IsBlocked())
+            return false;
+        var passwordResetToken = _tokenService.GeneratePasswordResetToken();
+
+        identity.SetPasswordResetToken(passwordResetToken.TokenHash, passwordResetToken.Expires);
+        await _userIdentityRepository.UpdateAsync(identity);
+        _emailService.SendPasswordResetMessage(email, passwordResetToken.Token);
+        return true;
+    }
+
     public async Task<LoginResponseDto?> RefreshAccessToken(string accessToken, string refreshToken)
     {
         var jwt = _tokenService.ParseAndValidateAccessToken(accessToken);
@@ -98,8 +137,7 @@ public class AuthService: IAuthService
             return null;
 
         var identity = await _userIdentityRepository.GetByEmailAsync(emailClaim.Value, includeUser: true);
-        if (!identity!.VerifyRefreshToken(refreshToken))
-        {
+        if (!identity!.VerifyRefreshToken(refreshToken) || identity.IsBlocked())
             _logger.LogInformation("{@RequestName} for {@User}", "Invalid refresh token", identity.Email);
             return null;
         }

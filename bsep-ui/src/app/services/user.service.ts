@@ -28,4 +28,8 @@ export class UserService {
   public deleteUserByEmail(email: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/deleteUserByEmail?email=${email}`);
   }
+
+  public blockUser(email: string) {
+    return this.http.put(`${this.apiUrl}/block?email=${email}`, null);
+  }
 }

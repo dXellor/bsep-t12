@@ -12,4 +12,6 @@ public interface IAuthService
     Task<LoginResponseDto> ValidateTotp(TotpDto totpDto);
     Task<bool> ValidateTotpAndEnableTwoFactorAuth(TotpDto totpDto);
     Task<byte[]> GetTotpSecretQr(string email);
+    Task<bool> ResetPassword(ResetPasswordDto resetPasswordDto);
+    Task<bool> StartPasswordReset(string email);
 }

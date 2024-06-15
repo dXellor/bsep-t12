@@ -15,6 +15,7 @@ import { environment } from 'src/environments/environment';
 })
 export class LoginComponentComponent implements OnInit {
   @Output() navigateToRegister = new EventEmitter<void>();
+  @Output() navigateToResetPasswordRequest = new EventEmitter<void>();
   public form: FormGroup;
 
   constructor(
@@ -59,6 +60,10 @@ export class LoginComponentComponent implements OnInit {
 
   public showRegister() {
     this.navigateToRegister.emit();
+  }
+
+  public showPasswordResetLinkMessage() {
+    this.navigateToResetPasswordRequest.emit();
   }
 
   private loginWithRecaptcha(): void {

@@ -8,4 +8,5 @@ public interface IUserService: ICrudService<UserDto>
     Task<UserDto> ChangeRoleAsync(RoleChangeDto request);
     Task<int> DeleteByEmailAsync(string email);
     Task<int> DeleteUserByEmailAsync(string email);
+    Task<bool> BlockUser(string email);
 }

@@ -8,6 +8,7 @@ import { AdministratorProfilePageComponent } from './pages/administrator-profile
 import { EnableTfaPageComponent } from './pages/enable-tfa-page/enable-tfa-page.component';
 import { TfaPageComponent } from './pages/tfa-page/tfa-page.component';
 import { twoFaGuard } from './guards/two-fa.guard';
+import { AdministratorUserManagingPageComponent } from './pages/administrator-user-managing-page/administrator-user-managing-page.component';
 import { AdsPageComponent } from './pages/ads-page/ads-page/ads-page.component';
 import { administratorGuard } from './guards/administrator.guard';
 
@@ -23,6 +24,11 @@ const routes: Routes = [
     path: 'admin-profile',
     component: AdministratorProfilePageComponent,
     canActivate: [authGuard, administratorGuard],
+  },
+  {
+    path: 'admin-user-managing',
+    component: AdministratorUserManagingPageComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'two-factor',
