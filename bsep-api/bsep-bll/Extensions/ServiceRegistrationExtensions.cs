@@ -13,5 +13,6 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ITotpService, TotpService>();
         services.AddScoped<IAdvertisementService, AdvertisementService>();
+        services.AddScoped<IMonitoringService, MonitoringService>();
     }
 }

@@ -8,7 +8,8 @@ import { AdministratorProfilePageComponent } from './pages/administrator-profile
 import { EnableTfaPageComponent } from './pages/enable-tfa-page/enable-tfa-page.component';
 import { TfaPageComponent } from './pages/tfa-page/tfa-page.component';
 import { twoFaGuard } from './guards/two-fa.guard';
-import {AdsPageComponent} from "./pages/ads-page/ads-page/ads-page.component";
+import { AdsPageComponent } from './pages/ads-page/ads-page/ads-page.component';
+import { administratorGuard } from './guards/administrator.guard';
 
 const routes: Routes = [
   { path: 'signup', component: AuthPageComponent, canActivate: [unauthGuard] },
@@ -16,12 +17,12 @@ const routes: Routes = [
   {
     path: 'enable-2fa',
     component: EnableTfaPageComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, administratorGuard],
   },
   {
     path: 'admin-profile',
     component: AdministratorProfilePageComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, administratorGuard],
   },
   {
     path: 'two-factor',
@@ -30,8 +31,8 @@ const routes: Routes = [
   },
   {
     path: 'ads',
-    component: AdsPageComponent
-  }
+    component: AdsPageComponent,
+  },
 ];
 
 @NgModule({
