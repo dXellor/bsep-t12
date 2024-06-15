@@ -1,0 +1,26 @@
+<div>
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>User email</th>
+                    <th>User Role</th>
+                    <th>Company Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of users">
+                    <td>{{user.email}}</td>
+                    <td>{{user.role}}</td>
+                    <td>{{user.companyName}}</td>
+                    <td>
+                        <button color="primary" mat-raised-button (click)="onBlockClicked(user)">
+                            Block
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

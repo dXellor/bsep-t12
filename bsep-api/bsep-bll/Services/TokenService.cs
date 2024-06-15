@@ -4,9 +4,11 @@ using System.Security.Cryptography;
 using System.Text;
 using bsep_bll.Contracts;
 using bsep_bll.Dtos.Auth;
+using bsep_bll.Dtos.Email;
 using bsep_bll.Dtos.Users;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using static Google.Protobuf.Reflection.FeatureSet.Types;
 
 namespace bsep_bll.Services;
 
@@ -45,6 +47,29 @@ public class TokenService: ITokenService
             Expires = DateTime.UtcNow.AddDays(duration)
         };
         return refreshToken;
+    }
+
+    public PasswordResetToken GeneratePasswordResetToken()
+    {
+        var length = int.Parse(_configuration["Cryptography:Tokens:PasswordResetTokenLength"]!);
+        var duration = int.Parse(_configuration["Cryptography:Tokens:PasswordResetTokenDuration"]!);
+        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(length));
+        var secret = _configuration["Cryptography:Tokens:PasswordResetSecretKey"]! ?? "";
+        var encoding = new ASCIIEncoding();
+
+        string hash = "";
+        using (var hmacsha256 = new HMACSHA256(encoding.GetBytes(secret)))
+        {
+            byte[] hashmessage = hmacsha256.ComputeHash(encoding.GetBytes(token));
+            hash = Convert.ToBase64String(hashmessage);
+        }
+        var passwordResetToken = new PasswordResetToken()
+        {
+            Token = token,
+            Expires = DateTime.UtcNow.AddDays(duration),
+            TokenHash = hash
+        };
+        return passwordResetToken;
     }
 
     public JwtSecurityToken? ParseAndValidateAccessToken(string accessToken)

@@ -22,6 +22,47 @@ namespace bsep_dll.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("bsep_dll.Models.Advertisement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("advertisement_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime>("End")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("end_date");
+
+                    b.Property<string>("Slogan")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("slogan");
+
+                    b.Property<DateTime>("Start")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("start_date");
+
+                    b.Property<int>("UserId")
+                        .HasMaxLength(255)
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("advertisements", (string)null);
+                });
+
             modelBuilder.Entity("bsep_dll.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -33,14 +74,12 @@ namespace bsep_dll.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("text")
                         .HasColumnName("address");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("text")
                         .HasColumnName("city");
 
                     b.Property<string>("CompanyName")
@@ -56,8 +95,7 @@ namespace bsep_dll.Migrations
 
                     b.Property<string>("Country")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("text")
                         .HasColumnName("country");
 
                     b.Property<string>("Email")
@@ -67,13 +105,11 @@ namespace bsep_dll.Migrations
                         .HasColumnName("email");
 
                     b.Property<string>("FirstName")
-                        .HasMaxLength(25)
-                        .HasColumnType("character varying(25)")
+                        .HasColumnType("text")
                         .HasColumnName("first_name");
 
                     b.Property<string>("LastName")
-                        .HasMaxLength(25)
-                        .HasColumnType("character varying(25)")
+                        .HasColumnType("text")
                         .HasColumnName("last_name");
 
                     b.Property<string>("Package")
@@ -83,8 +119,7 @@ namespace bsep_dll.Migrations
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("text")
                         .HasColumnName("phone");
 
                     b.Property<string>("Role")
@@ -111,6 +146,13 @@ namespace bsep_dll.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
 
+                    b.Property<int>("AccountStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsAwaitingTotp")
+                        .HasColumnType("boolean")
+                        .HasColumnName("awaiting_totp");
+
                     b.Property<int>("Iterations")
                         .HasColumnType("integer")
                         .HasColumnName("iterations");
@@ -123,6 +165,12 @@ namespace bsep_dll.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("password");
+
+                    b.Property<string>("PasswordResetToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("PasswordResetTokenExpirationDateTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("RefreshToken")
                         .HasColumnType("text")
@@ -137,9 +185,28 @@ namespace bsep_dll.Migrations
                         .HasColumnType("bytea")
                         .HasColumnName("salt");
 
+                    b.Property<string>("TotpSecret")
+                        .HasColumnType("text")
+                        .HasColumnName("totp_secret");
+
+                    b.Property<bool>("TwoFaEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("two_fa_enabled");
+
                     b.HasKey("Email");
 
                     b.ToTable("user_identities", (string)null);
+                });
+
+            modelBuilder.Entity("bsep_dll.Models.Advertisement", b =>
+                {
+                    b.HasOne("bsep_dll.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("bsep_dll.Models.UserIdentity", b =>

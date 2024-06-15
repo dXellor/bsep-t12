@@ -5,6 +5,7 @@ using bsep_dll.Helpers.QueryParameters;
 using bsep_dll.Models;
 using bsep_dll.Models.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace bsep_dll.Repositories
@@ -12,14 +13,16 @@ namespace bsep_dll.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly ILogger<UserRepository> _logger;
+        private readonly IConfiguration _configuration;
         private readonly DataContext _dataContext;
         private readonly DbSet<User> _users;
 
-        public UserRepository(ILogger<UserRepository> logger, DataContext dataContext)
+        public UserRepository(ILogger<UserRepository> logger, DataContext dataContext, IConfiguration configuration)
         {
             _logger = logger;
             _dataContext = dataContext;
             _users = dataContext.Users;
+            _configuration = configuration;
         }
 
         public async Task<PagedList<User>> GetAllAsync(QueryPageParameters queryParameters)
@@ -32,7 +35,14 @@ namespace bsep_dll.Repositories
                     .Where(u => u.Email.ToLower().Contains(userQueryParameters.Email.ToLower()))
                     .OrderBy(u => u.Email);
 
-                return await PagedList<User>.GetAsPagedList(query, userQueryParameters.PageNumber, userQueryParameters.PageSize);
+                var pagedList = await PagedList<User>.GetAsPagedList(query, userQueryParameters.PageNumber, userQueryParameters.PageSize);
+                foreach (var user in pagedList)
+                {
+                    user.DecryptData(_configuration["Cryptography:Data:AesKey"]!,
+                        _configuration["Cryptography:Data:AesIv"]!);
+                }
+
+                return pagedList;
             }
             catch (Exception e)
             {
@@ -48,9 +58,13 @@ namespace bsep_dll.Repositories
 
         public async Task<User> CreateAsync(User newObject)
         {
-            var user = await _users.AddAsync(newObject);
+            newObject.EncryptData(_configuration["Cryptography:Data:AesKey"]!,_configuration["Cryptography:Data:AesIv"]!);
+            await _users.AddAsync(newObject);
             await _dataContext.SaveChangesAsync();
-            return user.Entity;
+
+            var decryptedUser = new User(newObject);
+            decryptedUser.DecryptData(_configuration["Cryptography:Data:AesKey"]!,_configuration["Cryptography:Data:AesIv"]!);
+            return decryptedUser;
         }
 
         public async Task<User> UpdateAsync(User updatedUser)
@@ -64,11 +78,15 @@ namespace bsep_dll.Repositories
                     throw new KeyNotFoundException($"User with email {updatedUser.Email} not found.");
                 }
 
-                _dataContext.Entry(existingUser).CurrentValues.SetValues(updatedUser);
+                existingUser.DecryptData(_configuration["Cryptography:Data:AesKey"]!,_configuration["Cryptography:Data:AesIv"]!);
+                existingUser.UpdateAllowedValues(updatedUser);
+                existingUser.EncryptData(_configuration["Cryptography:Data:AesKey"]!,_configuration["Cryptography:Data:AesIv"]!);
+                
+                _dataContext.Users.Update(existingUser);
 
                 await _dataContext.SaveChangesAsync();
 
-                return existingUser;
+                return updatedUser;
             }
             catch (Exception e)
             {
@@ -81,6 +99,18 @@ namespace bsep_dll.Repositories
         {
             throw new NotImplementedException();
         }
+        
+        public async Task<int> DeleteByEmailAsync(string email)
+        {
+            var user = await _dataContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+            {
+                return 0;
+            }
+
+            _dataContext.Users.Remove(user);
+            return await _dataContext.SaveChangesAsync();
+        }
 
         public async Task<User?> GetByEmailAsync(string email)
         {
@@ -88,33 +118,15 @@ namespace bsep_dll.Repositories
                 .AsNoTracking()
                 .Where(u => u.Email == email);
 
-            return await query.FirstOrDefaultAsync();
+            var result = await query.FirstOrDefaultAsync();
+            result?.DecryptData(_configuration["Cryptography:Data:AesKey"]!,_configuration["Cryptography:Data:AesIv"]!);
+
+            return result;
         }
-        
+
         public async Task<User> ChangeRoleAsync(RoleChange request)
         {
-            try
-            {
-                var existingUser = await GetByEmailAsync(request.Email);
-
-                if (existingUser == null)
-                {
-                    throw new KeyNotFoundException($"User with email {request.Email} not found.");
-                }
-
-                existingUser.Role = request.NewRole;
-                
-                _dataContext.Entry(existingUser).State = EntityState.Modified;
-                await _dataContext.SaveChangesAsync();
-
-                return existingUser;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.ToString());
-                throw;
-            }
+            throw new NotImplementedException("Rework this method");
         }
-
     }
 }

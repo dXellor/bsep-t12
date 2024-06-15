@@ -1,0 +1,10 @@
+<div class="container">
+  <div class="cards">
+    <div class="card" *ngFor="let ad of ads" (click)="clickAd()">
+      <p>{{ad.slogan}}</p>
+      <p>{{ad.description}}</p>
+      <p>{{ad.start}}</p>
+      <p>{{ad.end}}</p>
+    </div>
+  </div>
+</div>

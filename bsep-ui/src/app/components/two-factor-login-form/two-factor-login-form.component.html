@@ -1,0 +1,12 @@
+<div class="form-container">
+  <form [formGroup]="form" (ngSubmit)="login()">
+      <div class="fields">
+        <mat-form-field>
+            <mat-label>Authenticator code</mat-label>
+            <input matInput formControlName="code" type="text"/>
+        </mat-form-field>
+
+        <button color="primary" type="submit" mat-raised-button class="custom-button">Login</button>
+      </div>
+  </form>
+</div>

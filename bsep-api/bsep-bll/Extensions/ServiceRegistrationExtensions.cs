@@ -11,5 +11,10 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ITotpService, TotpService>();
+        services.AddScoped<IAdvertisementService, AdvertisementService>();
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IMonitoringService, MonitoringService>();
+        services.AddScoped<INotificationService, NotificationService>();
     }
 }

@@ -22,8 +22,21 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { RegisterComponent } from './components/register/register.component';
 import { AdministratorProfilePageComponent } from './pages/administrator-profile-page/administrator-profile-page.component';
-import {MatButtonToggleModule} from "@angular/material/button-toggle";
-import {MatListModule} from "@angular/material/list";
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatListModule } from '@angular/material/list';
+import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module } from 'ng-recaptcha';
+import { environment } from 'src/environments/environment';
+import { NgHttpLoaderModule } from 'ng-http-loader';
+import { TwoFactorFormComponent } from './components/two-factor-form/two-factor-form.component';
+import { EnableTfaPageComponent } from './pages/enable-tfa-page/enable-tfa-page.component';
+import { TfaPageComponent } from './pages/tfa-page/tfa-page.component';
+import { TwoFactorLoginFormComponent } from './components/two-factor-login-form/two-factor-login-form.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { AdsPageComponent } from './pages/ads-page/ads-page/ads-page.component';
+import { PasswordResetRequestFormComponent } from './components/password-reset-request-form/password-reset-request-form.component';
+import { PasswordResetFormComponent } from './components/password-reset-form/password-reset-form.component';
+import { UsersTableComponent } from './components/users-table/users-table.component';
+import { AdministratorUserManagingPageComponent } from './pages/administrator-user-managing-page/administrator-user-managing-page.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +46,16 @@ import {MatListModule} from "@angular/material/list";
     LoginComponentComponent,
     RegisterComponent,
     AdministratorProfilePageComponent,
+    TwoFactorFormComponent,
+    EnableTfaPageComponent,
+    TfaPageComponent,
+    TwoFactorLoginFormComponent,
+    NavbarComponent,
+    AdsPageComponent,
+    PasswordResetRequestFormComponent,
+    PasswordResetFormComponent,
+    UsersTableComponent,
+    AdministratorUserManagingPageComponent
   ],
   imports: [
     BrowserModule,
@@ -52,12 +75,20 @@ import {MatListModule} from "@angular/material/list";
     ToastrModule.forRoot(),
     MatButtonToggleModule,
     MatListModule,
+    RecaptchaV3Module,
+    HttpClientModule,
+    NgHttpLoaderModule.forRoot(),
   ],
+
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true,
+    },
+    {
+      provide: RECAPTCHA_V3_SITE_KEY,
+      useValue: environment.recaptcha.siteKey,
     },
   ],
   bootstrap: [AppComponent],

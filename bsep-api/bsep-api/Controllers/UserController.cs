@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using bsep_api.Extensions.Auth;
+using bsep_api.Middleware;
 using bsep_bll.Contracts;
 using bsep_bll.Dtos.Users;
 using bsep_dll.Helpers.QueryParameters;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using static Google.Cloud.RecaptchaEnterprise.V1.AccountVerificationInfo.Types;
 
 namespace bsep_api.Controllers
 {
@@ -18,10 +20,12 @@ namespace bsep_api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly SignalRHub signalRHub;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IAuthService authService)
         {
             _userService = userService;
+            signalRHub = new SignalRHub();
         }
 
         [Authorize]
@@ -87,6 +91,32 @@ namespace bsep_api.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error occurred while updating the user role.");
             }
+        }
+        
+        [Authorize]
+        [HttpDelete("deleteUserByEmail")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteUserByEmail([FromQuery] string email)
+        {
+            var result = await _userService.DeleteUserByEmailAsync(email);
+
+            if (result == 0)
+                return NotFound("User not found");
+
+            return Ok("User successfully deleted");
+        }
+
+        [Authorize]
+        [HttpPut("block")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> BlockUser([FromQuery] string email)
+        {
+            var result = await _userService.BlockUser(email);
+            if (!result)
+                return NotFound("User with the email " + email + " not found");
+            return Ok("User blocked");
         }
     }
 }

@@ -1,2 +1,4 @@
-<app-login-component *ngIf="formType === 'LOGIN'" (navigateToRegister)="changeForm('REGISTER')"></app-login-component>
+<app-login-component *ngIf="formType === 'LOGIN'" (navigateToResetPasswordRequest)="changeForm('PASSWORD_RESET_REQUEST')" (navigateToRegister)="changeForm('REGISTER')"></app-login-component>
 <app-register *ngIf="formType === 'REGISTER'" (navigateToLogin)="changeForm('LOGIN')"></app-register>
+<app-password-reset-request-form *ngIf="formType === 'PASSWORD_RESET_REQUEST'" (navigateToLogin)="changeForm('LOGIN')"></app-password-reset-request-form>
+<app-password-reset-form *ngIf="formType === 'PASSWORD_RESET'" (navigateToLogin)="changeForm('LOGIN')"></app-password-reset-form>

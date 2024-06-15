@@ -1,0 +1,24 @@
+<div *ngIf="qr !== null">
+  <h2>Enable 2FA</h2>
+  <p>Scan this QR code with your authenticator app, and insert your code into field below to confirm your choice.</p>
+
+  <div [align]="'center'">
+    <img [src]="qrImage">
+  </div>
+
+  <div class="form-container">
+    <form [formGroup]="form" (ngSubmit)="enableTwoFA()">
+        <div class="fields">
+          <mat-form-field>
+              <mat-label>Authenticator code</mat-label>
+              <input matInput formControlName="code" type="text"/>
+          </mat-form-field>
+
+          <button color="primary" type="submit" mat-raised-button class="custom-button">Enable 2FA</button>
+        </div>
+    </form>
+  </div>
+</div>
+
+<h2 *ngIf="qr === null">2FA is Already enabled for your account</h2>
+

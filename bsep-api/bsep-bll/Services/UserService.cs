@@ -7,20 +7,28 @@ using bsep_dll.Models;
 using bsep_dll.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace bsep_bll.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserIdentityRepository _userIdentityRepository;
+        private readonly IAdvertisementRepository _advertisementRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
+        private readonly IEmailService _emailService;
 
-        public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger)
+        public UserService(IUserRepository userRepository, IEmailService emailService, IUserIdentityRepository userIdentityRepository, IAdvertisementRepository advertisementRepository, IMapper mapper, ILogger<UserService> logger)
         {
             _userRepository = userRepository;
+            _userIdentityRepository = userIdentityRepository;
+            _advertisementRepository = advertisementRepository;
             _mapper = mapper;
             _logger = logger;
+            _emailService = emailService;
         }
 
         public async Task<PagedList<UserDto>> GetAllAsync(QueryPageParameters queryParameters)
@@ -52,35 +60,44 @@ namespace bsep_bll.Services
 
         public async Task<UserDto> UpdateAsync(UserDto updatedUser)
         {
-            try
+            var existingUser = await _userRepository.GetByEmailAsync(updatedUser.Email);
+
+            if (existingUser == null)
             {
-                var existingUser = await _userRepository.GetByEmailAsync(updatedUser.Email);
-
-                if (existingUser == null)
-                {
-                    _logger.LogWarning($"User with email {updatedUser.Email} not found.");
-                    return null;
-                }
-
-                // Map updatedUser to existingUser
-                _mapper.Map(updatedUser, existingUser);
-
-                var updatedEntity = await _userRepository.UpdateAsync(existingUser);
-
-                _logger.LogInformation($"User with email {updatedUser.Email} successfully updated.");
-
-                return _mapper.Map<User, UserDto>(updatedEntity);
+                return null;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error updating user with email {updatedUser.Email}: {ex.Message}");
-                throw;
-            }
+
+            // Map updatedUser to existingUser
+            _mapper.Map(updatedUser, existingUser);
+
+            var updatedEntity = await _userRepository.UpdateAsync(existingUser);
+            return _mapper.Map<User, UserDto>(updatedEntity);
         }
 
         public Task<int> DeleteAsync(int id)
         {
             throw new NotImplementedException();
+        }
+        
+        public async Task<int> DeleteByEmailAsync(string email)
+        {
+            try
+            {
+                var result = await _userRepository.DeleteByEmailAsync(email);
+                if (result == 0)
+                {
+                    _logger.LogWarning("{@RequestName} {@Email}", "Requested removal of data for the email which is not in the system", email);
+                    return 0;
+                }
+
+                _logger.LogInformation("{@RequestName} for {@Email}", "Data removed", email);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{@RequestName} {@Email} with {@Error}", "Failed data removal for ", email, ex);
+                throw;
+            }
         }
 
         public async Task<UserDto> GetByEmailAsync(string email)
@@ -91,26 +108,56 @@ namespace bsep_bll.Services
         
         public async Task<UserDto> ChangeRoleAsync(RoleChangeDto request)
         {
-            try
+            var updatedUser = await _userRepository.ChangeRoleAsync(_mapper.Map<RoleChangeDto, RoleChange>(request));
+
+            if (updatedUser == null)
             {
-                var updatedUser = await _userRepository.ChangeRoleAsync(_mapper.Map<RoleChangeDto, RoleChange>(request));
-
-                if (updatedUser == null)
-                {
-                    _logger.LogWarning($"User with email {request.Email} not found.");
-                    return null;
-                }
-
-                _logger.LogInformation($"User with email {request.Email} successfully updated role to {request.NewRole}.");
-
-                return _mapper.Map<User, UserDto>(updatedUser);
+                return null;
             }
-            catch (Exception ex)
+
+            return _mapper.Map<User, UserDto>(updatedUser);
+        }
+        
+        public async Task<int> DeleteUserByEmailAsync(string email)
+        {
+            var user = await _userRepository.GetByEmailAsync(email);
+        
+            if (user == null)
             {
-                _logger.LogError($"Error updating role for user with email {request.Email}: {ex.Message}");
-                throw;
+                return 0;
             }
+            if (!user.Package.ToString().Equals(PackageTypeEnum.Gold.ToString()))
+            {
+                return 0;
+            }
+            
+            var advertisements = await _advertisementRepository.GetAdvertisementsByUserIdAsync(user.Id);
+            foreach (var ad in advertisements)
+            {
+                await _advertisementRepository.DeleteAsync(ad.Id);
+            }
+            
+            var userIdentityResult = await _userIdentityRepository.DeleteByEmailAsync(email);
+            var userResult = await _userRepository.DeleteByEmailAsync(email);
+
+            if (userIdentityResult == 0 || userResult == 0)
+            {
+                return 0;
+            }
+
+            return userIdentityResult + userResult;
         }
 
+        public async Task<bool> BlockUser(string email)
+        {
+            var identity = await _userIdentityRepository.GetByEmailAsync(email);
+            if (identity == null)
+                return false;
+
+            identity.BlockAccount();
+            await _userIdentityRepository.UpdateAsync(identity);
+            _emailService.SendBlockMessage(email);
+            return true;
+        }
     }
 }
