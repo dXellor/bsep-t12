@@ -137,7 +137,7 @@ public class AuthService: IAuthService
             return null;
 
         var identity = await _userIdentityRepository.GetByEmailAsync(emailClaim.Value, includeUser: true);
-        if (!identity!.VerifyRefreshToken(refreshToken) || identity.IsBlocked())
+        if (!identity!.VerifyRefreshToken(refreshToken) || identity.IsBlocked()) { 
             _logger.LogInformation("{@RequestName} for {@User}", "Invalid refresh token", identity.Email);
             return null;
         }

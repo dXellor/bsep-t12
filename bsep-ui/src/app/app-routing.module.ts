@@ -28,7 +28,7 @@ const routes: Routes = [
   {
     path: 'admin-user-managing',
     component: AdministratorUserManagingPageComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, administratorGuard],
   },
   {
     path: 'two-factor',
